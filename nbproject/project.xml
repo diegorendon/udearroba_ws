@@ -8,7 +8,6 @@
         <data xmlns="http://www.netbeans.org/ns/web-project/3">
             <name>udearroba_ws</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
-            <explicit-platform explicit-source-supported="true"/>
             <web-module-libraries>
                 <library dirs="200">
                     <file>${libs.UDEARROBA_Jersey.classpath}</file>
@@ -20,6 +19,10 @@
                 </library>
                 <library dirs="200">
                     <file>${libs.UDEARROBA_Autenticaci_nUdeA.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${libs.UDEARROBA_Log4j.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
