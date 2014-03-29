@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package co.edu.udea.udearroba.ws.resources;
 
@@ -50,6 +45,7 @@ public class Test {
             user.put("last_name", "Pérez");
             user.put("email", "estudiante@udea.edu.co");
             user.put("role", 5);
+            user.put("active", true);
             user.put("status", "MATRIC");
         } catch (JSONException ex) {
             Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);

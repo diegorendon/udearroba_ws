@@ -11,19 +11,21 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * REST Web Service
+ * REST Web Service for Moodle's users authentication.
  *
  * @author Diego
  */
 @Path("/login")
 public class Login {
-
+    
     /**
-     * Web service for authentication via MARES and SIPE.
+     * Web service for authentication via UdeA Portal's databases.
      *
      * @param username The username.
      * @param password The password hash.
-     * @return boolean True if the user's credentials were validated against the UdeA Portal or false in other case.
+     * 
+     * @return boolean True if the user's credentials were validated against the
+     * UdeA Portal or false in other case.
      */
     @GET
     @Path("{username}/{password}")
@@ -32,7 +34,7 @@ public class Login {
         AuthenticationManager authManager = new AuthenticationManager();
         JSONObject JSONResponse = new JSONObject();
         try {
-            if (authManager.authenticateUser(username, password)) {
+            if (authManager.authenticateUser(username, password)) {  // Uses the SOAP Web service.
                 JSONResponse.put("response", true);
             } else {
                 JSONResponse.put("response", false);
