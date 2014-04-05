@@ -20,28 +20,31 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/userinfo")
 public class UserInfo {
-    
+
     /**
-     * Web service for retrieving user information from UdeA Portal's databases.
+     * Web service for retrieving user information from UdeA Portal's databases
+     * given the username and password.
      *
      * @param username The username.
      * @param password The user password hash.
+     *
      * @return String The JSON data string with the user information.
      */
     @GET
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String getUserInformation(@PathParam("username") String username, @PathParam("password") String password) {
+        password = password.replace("+", " ");                                // Reset the blank sapces replaced by "+" in the URL.
         AuthenticationManager authManager = new AuthenticationManager();
         User user = authManager.getUserInformation(username, password);       // Uses the REST Web service.
         JSONObject JSONResponse = new JSONObject();
         try {
+            Map<String, String> userInfoMap = new HashMap<String, String>();
             if (user != null) {
-                Map <String, String> userInfoMap = new HashMap<String, String>();
-                userInfoMap.put("idnumber", user.getIdnumber());
-                userInfoMap.put("username", user.getUsername());
-                userInfoMap.put("firstname", user.getFirstname());
-                userInfoMap.put("lastname", user.getLastname());
+                userInfoMap.put("idnumber", user.getIdNumber());
+                userInfoMap.put("username", user.getUserName());
+                userInfoMap.put("firstname", user.getFirstName());
+                userInfoMap.put("lastname", user.getLastName());
                 userInfoMap.put("email", user.getEmail());
                 userInfoMap.put("phone1", user.getPhone1());
                 userInfoMap.put("phone2", user.getPhone2());
@@ -49,11 +52,36 @@ public class UserInfo {
                 userInfoMap.put("country", user.getCountry());
                 JSONResponse.put("response", userInfoMap);
             } else {
-                JSONResponse.put("response", false);
+//                JSONResponse.put("response", false);
+                userInfoMap.clear();
+                JSONResponse.put("response", userInfoMap);
             }
         } catch (JSONException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
         return JSONResponse.toString();
     }
+//
+//    /**
+//     * Web service for retrieving user information from UdeA Portal's databases
+//     * given the identification.
+//     *
+//     * @param identification The user identification.
+//     *
+//     * @return String The JSON data string with the user information.
+//     */
+//    @GET
+//    @Path("{identification}")
+//    @Produces("application/json" + ";charset=utf-8")
+//    public String getUserInformation(@PathParam("identification") String identification) {
+//        JSONObject JSONResponse = new JSONObject();
+//        Map<String, String> userInfoMap = new HashMap<String, String>();
+//        userInfoMap.put("idnumber", "00000");
+//        try {
+//            JSONResponse.put("response", userInfoMap);
+//        } catch (JSONException ex) {
+//            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return JSONResponse.toString();
+//    }
 }
