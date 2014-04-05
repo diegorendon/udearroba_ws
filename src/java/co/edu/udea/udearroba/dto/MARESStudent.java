@@ -3,7 +3,7 @@ package co.edu.udea.udearroba.dto;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * The Data Access Object for MARES student's entities.
+ * The Data Transfer Object for MARES student's entities.
  *
  * @author Diego Rendón
  */

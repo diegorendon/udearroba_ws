@@ -6,7 +6,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * The Data Access Object for user's entities.
+ * The Data Transfer Object for user's entities.
  * 
  * @author Diego Rendón
  */
