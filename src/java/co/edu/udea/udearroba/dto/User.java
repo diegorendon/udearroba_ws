@@ -6,71 +6,70 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- *
- * @author Diego
+ * The Data Access Object for user's entities.
+ * 
+ * @author Diego Rendón
  */
 public class User {
 
-    private String idnumber;
-    private String username;
-    private String firstname;
-    private String lastname;
+    private String idNumber;
+    private String userName;
+    private String firstName;
+    private String lastName;
     private String email;
     private String phone1;
     private String phone2;
     private String city;
     private String country;
-//    private String status;
 
     public String getJSONString() {
         JSONObject JSONResponse = new JSONObject();
         try {
-            JSONResponse.put("idnumber", this.getIdnumber());
-            JSONResponse.put("username", this.getUsername());
-            JSONResponse.put("firstname", this.getFirstname());
-            JSONResponse.put("lastname", this.getLastname());
+            JSONResponse.put("idnumber", this.getIdNumber());
+            JSONResponse.put("username", this.getUserName());
+            JSONResponse.put("firstname", this.getFirstName());
+            JSONResponse.put("lastname", this.getLastName());
             JSONResponse.put("email", this.getEmail());
             JSONResponse.put("phone1", this.getPhone1());
             JSONResponse.put("phone2", this.getPhone2());
             JSONResponse.put("city", this.getCity());
             JSONResponse.put("country", this.getCountry());
-//                  JSONResponse.put("user", this);
         } catch (JSONException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
         return JSONResponse.toString();
     }
 
-    public String getIdnumber() {
-        return idnumber;
+    public String getIdNumber() {
+        return idNumber;
     }
 
-    public void setIdnumber(String idnumber) {
-        this.idnumber = idnumber;
+    public void setIdNumber(String idNumber) {
+        this.idNumber = idNumber;
     }
     
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -113,11 +112,4 @@ public class User {
         this.country = country;
     }
 
-//    public String getStatus() {
-//        return status;
-//    }
-//
-//    public void setStatus(String status) {
-//        this.status = status;
-//    }
 }
