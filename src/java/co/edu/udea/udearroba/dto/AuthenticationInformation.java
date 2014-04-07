@@ -10,6 +10,15 @@ public class AuthenticationInformation {
     private String password;
     private String identification;
 
+    public AuthenticationInformation() {
+    }
+    
+    public AuthenticationInformation(String userName, String password, String idNumber) {
+        this.username = userName;
+        this.password = password;
+        this.identification = idNumber;
+    }
+
     public String getIdentification() {
         return identification;
     }
