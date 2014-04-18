@@ -9,32 +9,78 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class SIPEEmployee {
-    
+
     // Variable names should be in spanish to match the Web Service response from OrgSistemasWebServiceClient.
-    // TODO: validate wich variables should be created for an employee and generate getters and setters methods.
+    private String esAcademico;
+    private String esRector;
+    private String tipoIdentificacion;
+    private String numeroIdentificacion;
+    private String nombres;
+    private String primerApellido;
+    private String segundoApellido;
     private String nombre;
-    private String apellidos;
-    private String email;
+    private String centroCosto;
+    private String cargo;
     private String celular;
     private String telefono;
+    private String email;
     private String direccion;
-    private String codigoContinenteResidencia;
-    private String nombreContinenteResidencia;
-    private String codigoPaisResidencia;
-    private String nombrePaisResidencia;
-    private String codigoDepartamentoResidencia;
-    private String nombreDepartamentoResidencia;
-    private String codigoMunicipioResidencia;
-    private String nombreMunicipioResidencia;
-    private String codigoContinenteNacimiento;
-    private String nombreContinenteNacimiento;
-    private String codigoPaisNacimiento;
-    private String nombrePaisNacimiento;
-    private String codigoDepartamentoNacimiento;
-    private String nombreDepartamentoNacimiento;
-    private String codigoMunicipioNacimiento;
-    private String nombreMunicipioNacimiento;
-    private String estadoPersona;
+
+    public String getEsAcademico() {
+        return esAcademico;
+    }
+
+    public void setEsAcademico(String esAcademico) {
+        this.esAcademico = esAcademico;
+    }
+
+    public String getEsRector() {
+        return esRector;
+    }
+
+    public void setEsRector(String esRector) {
+        this.esRector = esRector;
+    }
+
+    public String getTipoIdentificacion() {
+        return tipoIdentificacion;
+    }
+
+    public void setTipoIdentificacion(String tipoIdentificacion) {
+        this.tipoIdentificacion = tipoIdentificacion;
+    }
+
+    public String getNumeroIdentificacion() {
+        return numeroIdentificacion;
+    }
+
+    public void setNumeroIdentificacion(String numeroIdentificacion) {
+        this.numeroIdentificacion = numeroIdentificacion;
+    }
+
+    public String getNombres() {
+        return nombres;
+    }
+
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
+
+    public String getPrimerApellido() {
+        return primerApellido;
+    }
+
+    public void setPrimerApellido(String primerApellido) {
+        this.primerApellido = primerApellido;
+    }
+
+    public String getSegundoApellido() {
+        return segundoApellido;
+    }
+
+    public void setSegundoApellido(String segundoApellido) {
+        this.segundoApellido = segundoApellido;
+    }
 
     public String getNombre() {
         return nombre;
@@ -44,20 +90,20 @@ public class SIPEEmployee {
         this.nombre = nombre;
     }
 
-    public String getApellidos() {
-        return apellidos;
+    public String getCentroCosto() {
+        return centroCosto;
     }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
+    public void setCentroCosto(String centroCosto) {
+        this.centroCosto = centroCosto;
     }
 
-    public String getEmail() {
-        return email;
+    public String getCargo() {
+        return cargo;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
     }
 
     public String getCelular() {
@@ -76,6 +122,14 @@ public class SIPEEmployee {
         this.telefono = telefono;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getDireccion() {
         return direccion;
     }
@@ -84,142 +138,4 @@ public class SIPEEmployee {
         this.direccion = direccion;
     }
 
-    public String getCodigoContinenteResidencia() {
-        return codigoContinenteResidencia;
-    }
-
-    public void setCodigoContinenteResidencia(String codigoContinenteResidencia) {
-        this.codigoContinenteResidencia = codigoContinenteResidencia;
-    }
-
-    public String getNombreContinenteResidencia() {
-        return nombreContinenteResidencia;
-    }
-
-    public void setNombreContinenteResidencia(String nombreContinenteResidencia) {
-        this.nombreContinenteResidencia = nombreContinenteResidencia;
-    }
-
-    public String getCodigoPaisResidencia() {
-        return codigoPaisResidencia;
-    }
-
-    public void setCodigoPaisResidencia(String codigoPaisResidencia) {
-        this.codigoPaisResidencia = codigoPaisResidencia;
-    }
-
-    public String getNombrePaisResidencia() {
-        return nombrePaisResidencia;
-    }
-
-    public void setNombrePaisResidencia(String nombrePaisResidencia) {
-        this.nombrePaisResidencia = nombrePaisResidencia;
-    }
-
-    public String getCodigoDepartamentoResidencia() {
-        return codigoDepartamentoResidencia;
-    }
-
-    public void setCodigoDepartamentoResidencia(String codigoDepartamentoResidencia) {
-        this.codigoDepartamentoResidencia = codigoDepartamentoResidencia;
-    }
-
-    public String getNombreDepartamentoResidencia() {
-        return nombreDepartamentoResidencia;
-    }
-
-    public void setNombreDepartamentoResidencia(String nombreDepartamentoResidencia) {
-        this.nombreDepartamentoResidencia = nombreDepartamentoResidencia;
-    }
-
-    public String getCodigoMunicipioResidencia() {
-        return codigoMunicipioResidencia;
-    }
-
-    public void setCodigoMunicipioResidencia(String codigoMunicipioResidencia) {
-        this.codigoMunicipioResidencia = codigoMunicipioResidencia;
-    }
-
-    public String getNombreMunicipioResidencia() {
-        return nombreMunicipioResidencia;
-    }
-
-    public void setNombreMunicipioResidencia(String nombreMunicipioResidencia) {
-        this.nombreMunicipioResidencia = nombreMunicipioResidencia;
-    }
-
-    public String getCodigoContinenteNacimiento() {
-        return codigoContinenteNacimiento;
-    }
-
-    public void setCodigoContinenteNacimiento(String codigoContinenteNacimiento) {
-        this.codigoContinenteNacimiento = codigoContinenteNacimiento;
-    }
-
-    public String getNombreContinenteNacimiento() {
-        return nombreContinenteNacimiento;
-    }
-
-    public void setNombreContinenteNacimiento(String nombreContinenteNacimiento) {
-        this.nombreContinenteNacimiento = nombreContinenteNacimiento;
-    }
-
-    public String getCodigoPaisNacimiento() {
-        return codigoPaisNacimiento;
-    }
-
-    public void setCodigoPaisNacimiento(String codigoPaisNacimiento) {
-        this.codigoPaisNacimiento = codigoPaisNacimiento;
-    }
-
-    public String getNombrePaisNacimiento() {
-        return nombrePaisNacimiento;
-    }
-
-    public void setNombrePaisNacimiento(String nombrePaisNacimiento) {
-        this.nombrePaisNacimiento = nombrePaisNacimiento;
-    }
-
-    public String getCodigoDepartamentoNacimiento() {
-        return codigoDepartamentoNacimiento;
-    }
-
-    public void setCodigoDepartamentoNacimiento(String codigoDepartamentoNacimiento) {
-        this.codigoDepartamentoNacimiento = codigoDepartamentoNacimiento;
-    }
-
-    public String getNombreDepartamentoNacimiento() {
-        return nombreDepartamentoNacimiento;
-    }
-
-    public void setNombreDepartamentoNacimiento(String nombreDepartamentoNacimiento) {
-        this.nombreDepartamentoNacimiento = nombreDepartamentoNacimiento;
-    }
-
-    public String getCodigoMunicipioNacimiento() {
-        return codigoMunicipioNacimiento;
-    }
-
-    public void setCodigoMunicipioNacimiento(String codigoMunicipioNacimiento) {
-        this.codigoMunicipioNacimiento = codigoMunicipioNacimiento;
-    }
-
-    public String getNombreMunicipioNacimiento() {
-        return nombreMunicipioNacimiento;
-    }
-
-    public void setNombreMunicipioNacimiento(String nombreMunicipioNacimiento) {
-        this.nombreMunicipioNacimiento = nombreMunicipioNacimiento;
-    }
-
-    public String getEstadoPersona() {
-        return estadoPersona;
-    }
-
-    public void setEstadoPersona(String estadoPersona) {
-        this.estadoPersona = estadoPersona;
-    }
-    
-    
-    
 }

@@ -1,6 +1,5 @@
 package co.edu.udea.udearroba.bl.services;
 
-import co.edu.udea.UtilidadesAutenticacion_wsdl.UtilidadesAutenticacionPortTypeProxy;
 import co.edu.udea.exception.OrgSistemasSecurityException;
 import co.edu.udea.udearroba.dao.impl.UserDAO;
 import co.edu.udea.udearroba.dto.AuthenticationInformation;
@@ -21,14 +20,18 @@ import java.util.logging.Logger;
  */
 public class AuthenticationManager {
 
-    private final String TOKEN = "5facbdd992ecd3e667df2b544e22a80a8274fd59";    // TODO: update this token with the appropriate information.
-    private final String CLAVE = "251860937072417361372773";                    // TODO: update this token with the appropriate information.
-    private final String MARES_USERINFO_REST_CALL = "consultapersonamares";     // The Web service to call in order to get the user information.
+    private final String TOKEN = "167c82ec048434e9ef8e99e373ac0c6a2f21ad16";    // Token assigned to Ude@ in order to be able to use the REST Web services.
+    private final String PUBLIC_KEY = "235589583811087512133117";               // Public key used by Ude@ in order to be able to use the REST Web services.
+    private final String MUA_AUTHENTICATION_REST_CALL = "validarusuariooidxcn"; // The Web service to call to get the user identification.
+    private final String MUA_AUTHENTICATION_PARAM1 = "usuario";                 // The Web service's first param name used to authenticate the user.
+    private final String MUA_AUTHENTICATION_PARAM2 = "clave";                   // The Web service's second param name used to authenticate the user.
+    private final String MUA_USERNAME_REST_CALL = "buscarnombreusuariomua";     // The Web service to call to get the user information of a student in MARES.
+    private final String MUA_USERNAME_PARAM1 = "cedula";                        // The Web service's first param name used to get the username.
+    private final String MUA_USERNAME_PARAM2 = "tipoDocumento";                 // The Web service's second param name used to get the username.
+    private final String MARES_USERINFO_REST_CALL = "consultapersonamares";     // The Web service to call to get the user information of a student in MARES.
     private final String MARES_USERINFO_PARAM1 = "cedula";                      // The Web service's param name used to get the user information.
-    private final String SIPE_USERINFO_REST_CALL = "consultapersonamares";      // The Web service to call in order to get the user information.
+    private final String SIPE_USERINFO_REST_CALL = "consultaempleadossipe";      // The Web service to call to get the user information of an employee in SIPE.
     private final String SIPE_USERINFO_PARAM1 = "cedula";                       // The Web service's param name used to get the user information.
-    private OrgSistemasWebServiceClient RESTWebServiceClient;                   // Use the OrgSistemasSecurity.jar.
-    private UtilidadesAutenticacionPortTypeProxy SOAPWebServiceClient;          // Use the AutenticacionUdeA.jar.
     private UserDAO userDAO;
 
     /**
@@ -39,10 +42,6 @@ public class AuthenticationManager {
     public AuthenticationManager() {
         try {
             userDAO = new UserDAO();
-            this.RESTWebServiceClient = new OrgSistemasWebServiceClient();
-            this.SOAPWebServiceClient = new UtilidadesAutenticacionPortTypeProxy();
-        } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UserDAOException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -59,9 +58,35 @@ public class AuthenticationManager {
      */
     public boolean authenticateUser(String username, String password) {
         boolean userValidated;
-        BasicUserInformation basicUserInfo = this.getBasicUserInfo(username, password);
-        userValidated = this.validateIdentification(basicUserInfo.getIdentification());
+        String identification = this.getIdentification(username, password);
+        userValidated = this.validateIdentification(identification);
         return userValidated;
+    }
+
+    /**
+     * Checks if a user exist in the UdeA Portal's databases.
+     *
+     * @param identification The user identification.
+     *
+     * @return boolean True if the user has credentials in the UdeA Portal's
+     * databases or false in other case.
+     */
+    public boolean checkUserExistence(String identification) {
+        OrgSistemasWebServiceClient RESTWebServiceClient = null;
+        try {
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+        } catch (OrgSistemasSecurityException ex) {
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        boolean userExist;
+        String username = null;
+        try {
+            username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
+        } catch (OrgSistemasSecurityException ex) {
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        userExist = this.validateUsername(username);
+        return userExist;
     }
 
     /**
@@ -73,95 +98,137 @@ public class AuthenticationManager {
      * @return User an User DTO with the user information.
      */
     public User getUserInformation(String username, String password) {
+        OrgSistemasWebServiceClient RESTWebServiceClient = null;
+        try {
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+        } catch (OrgSistemasSecurityException ex) {
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         User user = null;
-        BasicUserInformation basicUserInfo = this.getBasicUserInfo(username, password);
-        if (basicUserInfo != null) {
-            switch (basicUserInfo.getRole()) {
-                case STUDENT: {
-                    this.RESTWebServiceClient.addParam(MARES_USERINFO_PARAM1, basicUserInfo.getIdentification());
-                    List<MARESStudent> userList = new ArrayList<MARESStudent>();
-                    try {
-                        userList = this.RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
-                    } catch (OrgSistemasSecurityException ex) {
-                        Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    int lastRecordIndex = userList.size() - 1;
-                    if (!userList.isEmpty() && userList.get(lastRecordIndex) != null) {
-                        MARESStudent student = (MARESStudent) userList.get(lastRecordIndex); // Take the last record returned
-                        user = new User();
-                        user.setIdNumber(basicUserInfo.getIdentification());
-                        user.setUserName(username);
-                        user.setFirstName(student.getNombre());
-                        user.setLastName(student.getApellidos());
-                        user.setEmail(student.getEmail());
-                        user.setPhone1(student.getTelefono());
-                        user.setPhone2(student.getCelular());
-                        user.setCity(student.getNombreMunicipioResidencia());
-                        user.setCountry(student.getNombrePaisResidencia());
-                    }
-                    if (user != null) {
-                        AuthenticationInformation authenticationInfo = new AuthenticationInformation(user.getUserName(), password, user.getIdNumber());
-                        this.creteOrUpdateAuthenticationInfoInSERVA(authenticationInfo);
-                    }
-                    break;
+        boolean isValidIdentification;
+        String identification = this.getIdentification(username, password);
+        isValidIdentification = this.validateIdentification(identification);
+        if (isValidIdentification) {
+            // First: try to get info from MARES.
+            RESTWebServiceClient.addParam(MARES_USERINFO_PARAM1, identification);
+            List<MARESStudent> studentsList = new ArrayList<MARESStudent>();
+            try {
+                studentsList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
+            } catch (OrgSistemasSecurityException ex) {
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            int lastRecordIndex = studentsList.size() - 1;
+            if (!studentsList.isEmpty() && studentsList.get(lastRecordIndex) != null) {
+                MARESStudent student = (MARESStudent) studentsList.get(lastRecordIndex); // Take the last record returned
+                user = new User();
+                user.setIdNumber(identification);
+                user.setUserName(username);
+                user.setFirstName(student.getNombre());
+                user.setLastName(student.getApellidos());
+                user.setEmail(student.getEmail());
+                user.setPhone1(student.getTelefono());
+                user.setPhone2(student.getCelular());
+                user.setCity(student.getNombreMunicipioResidencia());
+                user.setCountry(student.getNombrePaisResidencia());
+            }
+            // Second: try to get info from SIPE
+            if (user == null) {
+                try {
+                    RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+                } catch (OrgSistemasSecurityException ex) {
+                    Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                case EMPLOYEE: {
-                    this.RESTWebServiceClient.addParam(SIPE_USERINFO_PARAM1, basicUserInfo.getIdentification());
-                    List<SIPEEmployee> userList = new ArrayList<SIPEEmployee>();
-                    try {
-                        userList = this.RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
-                    } catch (OrgSistemasSecurityException ex) {
-                        Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    int lastRecordIndex = userList.size() - 1;
-                    if (!userList.isEmpty() && userList.get(lastRecordIndex) != null) {
-                        SIPEEmployee employee = (SIPEEmployee) userList.get(lastRecordIndex); // Take the last record returned
-                        user = new User();
-                        user.setIdNumber(basicUserInfo.getIdentification());
-                        user.setUserName(username);
-                        user.setFirstName(employee.getNombre());
-                        user.setLastName(employee.getApellidos());
-                        user.setEmail(employee.getEmail());
-                        user.setPhone1(employee.getTelefono());
-                        user.setPhone2(employee.getCelular());
-                        user.setCity(employee.getNombreMunicipioResidencia());
-                        user.setCountry(employee.getNombrePaisResidencia());
-                    }
-                    break;
+                RESTWebServiceClient.addParam(SIPE_USERINFO_PARAM1, identification);
+                List<SIPEEmployee> employeesList = new ArrayList<SIPEEmployee>();
+                try {
+                    employeesList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
+                } catch (OrgSistemasSecurityException ex) {
+                    Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                lastRecordIndex = employeesList.size() - 1;
+                if (!employeesList.isEmpty() && employeesList.get(lastRecordIndex) != null) {
+                    SIPEEmployee employee = (SIPEEmployee) employeesList.get(lastRecordIndex); // Take the last record returned
+                    user = new User();
+                    user.setIdNumber(identification);
+                    user.setUserName(username);
+                    user.setFirstName(employee.getNombre());
+                    user.setLastName(employee.getPrimerApellido() + " " + employee.getSegundoApellido());
+                    user.setEmail(employee.getEmail());
+                    user.setPhone1(employee.getTelefono());
+                    user.setPhone2(employee.getCelular());
+                    user.setCity(null);
+                    user.setCountry(null);
+                }
+            }
+             if (user != null) {
+                AuthenticationInformation authenticationInfo = new AuthenticationInformation(user.getUserName(), password, user.getIdNumber());
+                this.creteOrUpdateAuthenticationInfo(authenticationInfo);
             }
         }
         return user;
     }
 
     /**
-     * Returns the identification and role information of a user from UdeA
-     * Portal's databases.
+     * Returns the username of a user from UdeA Portal's databases.
+     *
+     * @param identification The user identification.
+     *
+     * @return String The username associated with the user's identification or NULL.
+     */
+    public String getUserName(String identification) {
+        OrgSistemasWebServiceClient RESTWebServiceClient = null;
+        try {
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+        } catch (OrgSistemasSecurityException ex) {
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        boolean isValidIdentification, isValidUsername = false;
+        String username = "ERROR";
+        isValidIdentification = this.validateIdentification(identification);
+        if (isValidIdentification) {
+            RESTWebServiceClient.addParam(MUA_USERNAME_PARAM1, identification);
+            RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "CC");
+            try {
+                username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
+            } catch (OrgSistemasSecurityException ex) {
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            isValidUsername = this.validateUsername(username);
+        }
+        return isValidUsername ? username : null;
+    }
+
+    /**
+     * Returns the identification of a user from UdeA Portal's databases.
      *
      * @param username The username.
      * @param password The user password hash.
      *
-     * @return BasicUserInformation an object (of an inner class) with the
-     * user's identification and role information.
+     * @return String the user identification number or NULL.
      */
-    private BasicUserInformation getBasicUserInfo(String username, String password) {
+    public String getIdentification(String username, String password) {
+        OrgSistemasWebServiceClient RESTWebServiceClient = null;
+        try {
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+        } catch (OrgSistemasSecurityException ex) {
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String identification = "ERROR";
-        BasicUserInformation basicUserInfo = null;
         boolean isValidIdentification = false;
-        // First: try to get info from MARES.
+        // First: try to get info from MARES OR SIPE.
         if (!isValidIdentification) {
+            RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM1, username);
+            RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, password);
             try {
-                identification = this.SOAPWebServiceClient.autenticaLogin(username, password); //TODO: Use a REST Web Sservice instead of a SOAP one.
+                identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN);
             } catch (Exception ex) {
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (OrgSistemasSecurityException ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
             }
             isValidIdentification = validateIdentification(identification);
-            if (isValidIdentification) {
-                basicUserInfo = new BasicUserInformation(identification);
-                basicUserInfo.setRole(UserRole.STUDENT);
-            }
         }
-        // Second: try to get info from SERVA.
+        // Second: try to get info from SERVA if the past try had failed.
         if (!isValidIdentification) {
             try {
                 AuthenticationInformation authenticationInfo = this.userDAO.getAuthenticationInfoFromSERVA(username, password);
@@ -170,26 +237,29 @@ public class AuthenticationManager {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
             }
             isValidIdentification = validateIdentification(identification);
-            if (isValidIdentification) {
-                basicUserInfo = new BasicUserInformation(identification);
-                basicUserInfo.setRole(UserRole.STUDENT);
-            }
         }
-        // Third: try to get info from SIPE if the two past tries had failed.
-        if (!isValidIdentification) {
-            try {
-                // TODO: implement call to SIPE.
-//                identification = this.RESTWebServiceClient.autenticaLogin(username, password); //TODO: Use a REST Web Sservice instead of a SOAP one.
-            } catch (Exception ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+        return isValidIdentification ? identification : null;
+    }
+    
+    /**
+     * Create or update the user authentication information in SERVA.
+     *
+     * @param username The username.
+     * @param password The user password hash.
+     *
+     * @return User an User DTO with the user information.
+     */
+    private boolean creteOrUpdateAuthenticationInfo(AuthenticationInformation authInfo) {
+        try {
+            if (this.userDAO.getAuthenticationInfoFromSERVA(authInfo.getIdentification()) != null) {
+                return this.userDAO.update(authInfo);
+            } else {
+                return this.userDAO.insert(authInfo);
             }
-            isValidIdentification = validateIdentification(identification);
-            if (isValidIdentification) {
-                basicUserInfo = new BasicUserInformation(identification);
-                basicUserInfo.setRole(UserRole.EMPLOYEE);
-            }
+        } catch (Exception ex) {
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-        return isValidIdentification ? basicUserInfo : null;
     }
     
     /*
@@ -212,110 +282,18 @@ public class AuthenticationManager {
         return isValidIdentification;
     }
 
-    /**
-     * Create or update the user authentication information in SERVA.
+    /*
+     * Validates if an username returned by a REST Web Service call is correct.
      *
-     * @param username The username.
-     * @param password The user password hash.
+     * @param username The username to test.
      *
-     * @return User an User DTO with the user information.
+     * @return bolean True if the username is correct and False in other case.
      */
-    private boolean creteOrUpdateAuthenticationInfoInSERVA(AuthenticationInformation authInfo) {
-        try {
-            if (this.userDAO.getAuthenticationInfoFromSERVA(authInfo.getIdentification()) != null) {
-                return this.userDAO.update(authInfo);
-            } else {
-                return this.userDAO.insert(authInfo);
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
+    private boolean validateUsername(String username) {
+        boolean isValidIdentification = false;
+        if (username != null && !username.contains("ERROR")) {
+            isValidIdentification = true;
         }
-    }
-    
-    /**
-     * Manage the authentication procces of the UdeA Portal's users.
-     *
-     * @author Diego Rendón
-     */
-    private class BasicUserInformation {
-
-        private String identification;
-        private UserRole role;
-
-        /**
-         * Constructor with the identification parameter.
-         *
-         * @param identification String with the identification name of the
-         * user.
-         *
-         * Instantiates the user's basic information with the identification.
-         */
-        public BasicUserInformation(String identification) {
-            this.identification = identification;
-        }
-
-        /**
-         * Constructor with the identification and role parameters.
-         *
-         * @param identification String with the identification name of the
-         * user.
-         * @param role UserRole enumeration value that indicates the role of the user.
-         *
-         * Instantiates the user's basic information with the identification and
-         * role.
-         */
-        public BasicUserInformation(String identification, UserRole role) {
-            this.identification = identification;
-            this.role = role;
-        }
-
-        public String getIdentification() {
-            return identification;
-        }
-
-        public void setIdentification(String identification) {
-            this.identification = identification;
-        }
-
-        public UserRole getRole() {
-            return role;
-        }
-
-        public void setRole(UserRole role) {
-            this.role = role;
-        }
-    }
-
-    /**
-     * Enumeration of the possible user roles.
-     */
-    private enum UserRole {
-
-        EMPLOYEE(3, "Empleado"), STUDENT(5, "Estudiante");       // TODO: move strings to a buundle.
-        private int code;
-        private String label;
-
-        private UserRole(int code, String label) {
-            this.code = code;
-            this.label = label;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
-        }
-
+        return isValidIdentification;
     }
 }
