@@ -36,7 +36,7 @@ public class UserInfo {
     public String getUserInformation(@PathParam("username") String username, @PathParam("password") String password) {
         password = password.replace("+", " ");                                // Reset the blank sapces replaced by "+" in the URL.
         AuthenticationManager authManager = new AuthenticationManager();
-        User user = authManager.getUserInformation(username, password);       // Uses the REST Web service.
+        User user = authManager.getUserInformation(username, password);
         JSONObject JSONResponse = new JSONObject();
         try {
             Map<String, String> userInfoMap = new HashMap<String, String>();
@@ -52,7 +52,6 @@ public class UserInfo {
                 userInfoMap.put("country", user.getCountry());
                 JSONResponse.put("response", userInfoMap);
             } else {
-//                JSONResponse.put("response", false);
                 userInfoMap.clear();
                 JSONResponse.put("response", userInfoMap);
             }
@@ -61,27 +60,27 @@ public class UserInfo {
         }
         return JSONResponse.toString();
     }
-//
-//    /**
-//     * Web service for retrieving user information from UdeA Portal's databases
-//     * given the identification.
-//     *
-//     * @param identification The user identification.
-//     *
-//     * @return String The JSON data string with the user information.
-//     */
-//    @GET
-//    @Path("{identification}")
-//    @Produces("application/json" + ";charset=utf-8")
-//    public String getUserInformation(@PathParam("identification") String identification) {
-//        JSONObject JSONResponse = new JSONObject();
-//        Map<String, String> userInfoMap = new HashMap<String, String>();
-//        userInfoMap.put("idnumber", "00000");
-//        try {
-//            JSONResponse.put("response", userInfoMap);
-//        } catch (JSONException ex) {
-//            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return JSONResponse.toString();
-//    }
+
+    /**
+     * Web service for retrieving user information from UdeA Portal's databases
+     * given the identification.
+     *
+     * @param identification The user identification.
+     *
+     * @return String The JSON data string with the user information.
+     */
+    @GET
+    @Path("{identification}")
+    @Produces("application/json" + ";charset=utf-8")
+    public String getUserName(@PathParam("identification") String identification) {
+        AuthenticationManager authManager = new AuthenticationManager();
+        String username = authManager.getUserName(identification);
+        JSONObject JSONResponse = new JSONObject();
+        try {
+            JSONResponse.put("response", username);
+        } catch (JSONException ex) {
+            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return JSONResponse.toString();
+    }
 }

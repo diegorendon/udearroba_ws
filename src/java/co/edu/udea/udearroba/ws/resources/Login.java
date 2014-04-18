@@ -31,11 +31,37 @@ public class Login {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String authenticateUser(@PathParam("username") String username, @PathParam("password") String password) {
-        password = password.replace("+", " ");                                // Reset the blank sapces replaced by "+" in the URL.
+        password = password.replace("+", " ");                                // Reset the blank spaces replaced by "+" in the URL.
         AuthenticationManager authManager = new AuthenticationManager();
         JSONObject JSONResponse = new JSONObject();
         try {
-            if (authManager.authenticateUser(username, password)) {  // Uses the SOAP Web service.
+            if (authManager.authenticateUser(username, password)) {
+                JSONResponse.put("response", true);
+            } else {
+                JSONResponse.put("response", false);
+            }
+        } catch (JSONException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return JSONResponse.toString();
+    }
+    
+    /**
+     * Web service that checks if a user exist in the UdeA Portal's databases.
+     *
+     * @param identification The user identification.
+     * 
+     * @return boolean True if the user has credentials in the UdeA Portal's databases or false in other case.
+     */
+    @GET
+    @Path("{identification}")
+    @Produces("application/json" + ";charset=utf-8")
+    public String checkUserExistence(@PathParam("identification") String identification) {
+        identification = identification.replace("+", " ");                                  // Reset the blank spaces replaced by "+" in the URL.
+        AuthenticationManager authManager = new AuthenticationManager();
+        JSONObject JSONResponse = new JSONObject();
+        try {
+            if (authManager.checkUserExistence(identification)) {
                 JSONResponse.put("response", true);
             } else {
                 JSONResponse.put("response", false);
