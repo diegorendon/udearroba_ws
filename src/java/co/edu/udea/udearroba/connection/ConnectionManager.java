@@ -54,7 +54,7 @@ public class ConnectionManager {
         } catch (ClassNotFoundException ex) {
             throw new ClassNotFoundException("No se encuentra el driver de conexión."); // FIXME: move strings to a buundle;
         } catch (SQLException ex) {
-            throw new SQLException("Ha ocurrido un error de SQL.");     // FIXME: move strings to a buundle;
+            throw new SQLException("Ha ocurrido un error de SQL: " + ex.getMessage());     // FIXME: move strings to a buundle;
         } catch (MissingResourceException ex) {
             throw new Exception("No se encuentra el recurso de propiedades para las consultas.");   // FIXME: move strings to a buundle;
         }
