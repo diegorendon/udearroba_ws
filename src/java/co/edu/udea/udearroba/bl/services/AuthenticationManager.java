@@ -30,9 +30,11 @@ public class AuthenticationManager {
     private final String MUA_USERNAME_PARAM2 = "tipoDocumento";                 // The Web service's second param name used to get the username.
     private final String MARES_USERINFO_REST_CALL = "consultapersonamares";     // The Web service to call to get the user information of a student in MARES.
     private final String MARES_USERINFO_PARAM1 = "cedula";                      // The Web service's param name used to get the user information.
-    private final String SIPE_USERINFO_REST_CALL = "consultaempleadossipe";      // The Web service to call to get the user information of an employee in SIPE.
+    private final String SIPE_USERINFO_REST_CALL = "consultaempleadossipe";     // The Web service to call to get the user information of an employee in SIPE.
     private final String SIPE_USERINFO_PARAM1 = "cedula";                       // The Web service's param name used to get the user information.
     private UserDAO userDAO;
+    
+    boolean dabug = false;  //TODO: delete and change for production correct value
 
     /**
      * Constructor.
@@ -43,7 +45,7 @@ public class AuthenticationManager {
         try {
             userDAO = new UserDAO();
         } catch (UserDAOException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "Creación del DAO de usuarios", ex);
         }
     }
 
@@ -74,7 +76,7 @@ public class AuthenticationManager {
     public boolean checkUserExistence(String identification) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
         } catch (OrgSistemasSecurityException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -100,22 +102,22 @@ public class AuthenticationManager {
     public User getUserInformation(String username, String password) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserInformation creación del wsClient con public_key y false.", ex);
         }
         User user = null;
         boolean isValidIdentification;
         String identification = this.getIdentification(username, password);
         isValidIdentification = this.validateIdentification(identification);
-        if (isValidIdentification) {
+        if (isValidIdentification && RESTWebServiceClient != null) {
             // First: try to get info from MARES.
             RESTWebServiceClient.addParam(MARES_USERINFO_PARAM1, identification);
             List<MARESStudent> studentsList = new ArrayList<MARESStudent>();
             try {
                 studentsList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserInformation llamado al WS para obtener la información de usuario.", ex);
             }
             int lastRecordIndex = studentsList.size() - 1;
             if (!studentsList.isEmpty() && studentsList.get(lastRecordIndex) != null) {
@@ -134,16 +136,18 @@ public class AuthenticationManager {
             // Second: try to get info from SIPE
             if (user == null) {
                 try {
-                    RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+                    RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
                 } catch (OrgSistemasSecurityException ex) {
-                    Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserInformation segunda creación del wsClient.", ex);
                 }
-                RESTWebServiceClient.addParam(SIPE_USERINFO_PARAM1, identification);
                 List<SIPEEmployee> employeesList = new ArrayList<SIPEEmployee>();
-                try {
-                    employeesList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
-                } catch (OrgSistemasSecurityException ex) {
-                    Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+                if (RESTWebServiceClient != null) {
+                    RESTWebServiceClient.addParam(SIPE_USERINFO_PARAM1, identification);
+                    try {
+                        employeesList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
+                    } catch (OrgSistemasSecurityException ex) {
+                        Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserInformation llamado al WS para obtener la información del empleado en SIPE.", ex);
+                    }
                 }
                 lastRecordIndex = employeesList.size() - 1;
                 if (!employeesList.isEmpty() && employeesList.get(lastRecordIndex) != null) {
@@ -160,7 +164,7 @@ public class AuthenticationManager {
                     user.setCountry(null);
                 }
             }
-             if (user != null) {
+            if (user != null) {
                 AuthenticationInformation authenticationInfo = new AuthenticationInformation(user.getUserName(), password, user.getIdNumber());
                 this.creteOrUpdateAuthenticationInfo(authenticationInfo);
             }
@@ -173,25 +177,26 @@ public class AuthenticationManager {
      *
      * @param identification The user identification.
      *
-     * @return String The username associated with the user's identification or NULL.
+     * @return String The username associated with the user's identification or
+     * NULL.
      */
     public String getUserName(String identification) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserName Creación del ws Client con public_key y false ", ex);
         }
         boolean isValidIdentification, isValidUsername = false;
         String username = "ERROR";
         isValidIdentification = this.validateIdentification(identification);
-        if (isValidIdentification) {
+        if (isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_USERNAME_PARAM1, identification);
             RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "CC");
             try {
                 username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserName llamado al WS para obtener el nombre de usuario en MUA.", ex);
             }
             isValidUsername = this.validateUsername(username);
         }
@@ -209,22 +214,22 @@ public class AuthenticationManager {
     public String getIdentification(String username, String password) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, false);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getIdentification Creación del wsClient con public_key y false", ex);
         }
         String identification = "ERROR";
         boolean isValidIdentification = false;
         // First: try to get info from MARES OR SIPE.
-        if (!isValidIdentification) {
+        if (!isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM1, username);
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, password);
             try {
                 identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN);
             } catch (Exception ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getIdentification excepción general del llamado del WS para obtener la identificación en MUA.", ex);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getIdentification excepción de Organización y sistemas del llamado del WS para obtener la identificación en MUA.", ex);
             }
             isValidIdentification = validateIdentification(identification);
         }
@@ -240,7 +245,7 @@ public class AuthenticationManager {
         }
         return isValidIdentification ? identification : null;
     }
-    
+
     /**
      * Create or update the user authentication information in SERVA.
      *
@@ -257,11 +262,11 @@ public class AuthenticationManager {
                 return this.userDAO.insert(authInfo);
             }
         } catch (Exception ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "Creación o actualización de registro en SERVA.", ex);
             return false;
         }
     }
-    
+
     /*
      * Validates if an identification returned for a REST Web Service call is correct.
      *
