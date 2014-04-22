@@ -15,11 +15,12 @@ import java.util.logging.Logger;
 
 /**
  * Manage the authentication procces of the UdeA Portal's users.
- *
+ *RESTWebServiceClient
  * @author Diego Rendón
  */
 public class AuthenticationManager {
 
+    private boolean useTestingData = true;                                     // Switches between testing and production modes for the Web Services' calls. Set to true for development and false for production.
     private final String TOKEN = "167c82ec048434e9ef8e99e373ac0c6a2f21ad16";    // Token assigned to Ude@ in order to be able to use the REST Web services.
     private final String PUBLIC_KEY = "235589583811087512133117";               // Public key used by Ude@ in order to be able to use the REST Web services.
     private final String MUA_AUTHENTICATION_REST_CALL = "validarusuariooidxcn"; // The Web service to call to get the user identification.
@@ -33,8 +34,6 @@ public class AuthenticationManager {
     private final String SIPE_USERINFO_REST_CALL = "consultaempleadossipe";     // The Web service to call to get the user information of an employee in SIPE.
     private final String SIPE_USERINFO_PARAM1 = "cedula";                       // The Web service's param name used to get the user information.
     private UserDAO userDAO;
-    
-    boolean dabug = false;  //TODO: delete and change for production correct value
 
     /**
      * Constructor.
@@ -76,7 +75,7 @@ public class AuthenticationManager {
     public boolean checkUserExistence(String identification) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);                 // Does not require encoding
         } catch (OrgSistemasSecurityException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -102,7 +101,7 @@ public class AuthenticationManager {
     public User getUserInformation(String username, String password) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserInformation creación del wsClient con public_key y false.", ex);
         }
@@ -136,7 +135,7 @@ public class AuthenticationManager {
             // Second: try to get info from SIPE
             if (user == null) {
                 try {
-                    RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
+                    RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
                 } catch (OrgSistemasSecurityException ex) {
                     Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserInformation segunda creación del wsClient.", ex);
                 }
@@ -183,7 +182,7 @@ public class AuthenticationManager {
     public String getUserName(String identification) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getUserName Creación del ws Client con public_key y false ", ex);
         }
@@ -192,7 +191,7 @@ public class AuthenticationManager {
         isValidIdentification = this.validateIdentification(identification);
         if (isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_USERNAME_PARAM1, identification);
-            RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "CC");
+            RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "CC");                   //TODO: select the correct document type.
             try {
                 username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
             } catch (OrgSistemasSecurityException ex) {
@@ -214,7 +213,7 @@ public class AuthenticationManager {
     public String getIdentification(String username, String password) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
-            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, dabug);
+            RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, useTestingData);
         } catch (OrgSistemasSecurityException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getIdentification Creación del wsClient con public_key y false", ex);
         }
@@ -237,7 +236,9 @@ public class AuthenticationManager {
         if (!isValidIdentification) {
             try {
                 AuthenticationInformation authenticationInfo = this.userDAO.getAuthenticationInfoFromSERVA(username, password);
-                identification = authenticationInfo.getIdentification();
+                if(authenticationInfo != null){
+                    identification = authenticationInfo.getIdentification();
+                }
             } catch (Exception ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
             }
