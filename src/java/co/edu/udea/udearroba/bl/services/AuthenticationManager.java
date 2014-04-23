@@ -107,7 +107,7 @@ public class AuthenticationManager {
         }
         User user = null;
         boolean isValidIdentification;
-        String identification = this.getIdentification(username, password);
+        String identification = this.getIdentification(username, password).trim();
         isValidIdentification = this.validateIdentification(identification);
         if (isValidIdentification && RESTWebServiceClient != null) {
             // First: try to get info from MARES.
@@ -224,7 +224,7 @@ public class AuthenticationManager {
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM1, username);
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, password);
             try {
-                identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN);
+                identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN).trim();
             } catch (Exception ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, "getIdentification excepción general del llamado del WS para obtener la identificación en MUA.", ex);
             } catch (OrgSistemasSecurityException ex) {
@@ -237,7 +237,7 @@ public class AuthenticationManager {
             try {
                 AuthenticationInformation authenticationInfo = this.userDAO.getAuthenticationInfoFromSERVA(username, password);
                 if(authenticationInfo != null){
-                    identification = authenticationInfo.getIdentification();
+                    identification = authenticationInfo.getIdentification().trim();
                 }
             } catch (Exception ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, null, ex);
