@@ -1,5 +1,6 @@
 package co.edu.udea.udearroba.dto;
 
+import co.edu.udea.udearroba.i18n.Texts;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jettison.json.JSONException;
@@ -35,7 +36,7 @@ public class User {
             JSONResponse.put("city", this.getCity());
             JSONResponse.put("country", this.getCountry());
         } catch (JSONException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseDTOLogMessage"), ex);
         }
         return JSONResponse.toString();
     }

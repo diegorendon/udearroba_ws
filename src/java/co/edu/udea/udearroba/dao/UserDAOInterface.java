@@ -5,7 +5,7 @@ import co.edu.udea.udearroba.dto.AuthenticationInformation;
 /**
  * Interface that establishes the methods needed in a DAO for user's entities.
  *
- * @author Diego
+ * @author Diego Rendón
  */
 public interface UserDAOInterface {
 

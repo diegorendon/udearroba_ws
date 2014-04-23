@@ -2,6 +2,7 @@ package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.dto.User;
+import co.edu.udea.udearroba.i18n.Texts;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -16,7 +17,7 @@ import org.codehaus.jettison.json.JSONObject;
 /**
  * REST Web Service for retrieving Moodle's users information.
  *
- * @author Diego
+ * @author Diego Rendón
  */
 @Path("/userinfo")
 public class UserInfo {
@@ -56,7 +57,7 @@ public class UserInfo {
                 JSONResponse.put("response", userInfoMap);
             }
         } catch (JSONException ex) {
-            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
         }
         return JSONResponse.toString();
     }
@@ -79,7 +80,7 @@ public class UserInfo {
         try {
             JSONResponse.put("response", username);
         } catch (JSONException ex) {
-            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserNameLogMessage"), ex);
         }
         return JSONResponse.toString();
     }

@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 /**
  * The Data Access Object for user's entities.
  *
- * @author Diego
+ * @author Diego Rendón
  */
 public class UserDAO implements UserDAOInterface {
 
@@ -23,7 +23,7 @@ public class UserDAO implements UserDAOInterface {
     private final String SERVA_QUERY_AUTH_INFO_BY_IDENTIFICATION = "getAuthInfoByIdentification";       // Name of the string of SQL query by identification for SERVA
     private final String SERVA_QUERY_AUTH_INFO_BY_USERNAME_PASSWORD = "getAuthInfoByUsernamePassword";  // Name of the string of SQL query by username and password for SERVA
     private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.UserDAOQueries";
-    protected ResourceBundle resource;
+    private ResourceBundle resource;
 
     /**
      * Dafault UserDAO constructor without parameters.
@@ -32,7 +32,7 @@ public class UserDAO implements UserDAOInterface {
      */
     public UserDAO() throws UserDAOException {
         try {
-            resource = ResourceBundle.getBundle(RESOURCE_BUNDLE_PATH);
+            this.resource = ResourceBundle.getBundle(RESOURCE_BUNDLE_PATH);
         } catch (MissingResourceException exception) {
             throw new UserDAOException(UserDAOException.MISSING_RESOURCE_BUNDLE);
         }

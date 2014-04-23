@@ -3,7 +3,7 @@ package co.edu.udea.udearroba.dto;
 /**
  * The Data Transfer Object for the authentication information entities.
  * 
- * @author Diego
+ * @author Diego Rendón
  */
 public class AuthenticationInformation {
     private String username;
