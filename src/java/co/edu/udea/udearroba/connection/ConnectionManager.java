@@ -4,6 +4,7 @@ import co.edu.udea.udearroba.i18n.Texts;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -31,18 +32,19 @@ public class ConnectionManager {
      * @throws Exception
      */
     public static Connection getConnection(int database) throws ClassNotFoundException, SQLException, Exception {
+        String RESOURCE_BUNDLE_PATH;
         try {
-            String bundle;
+
             switch (database) {
                 case SERVA:
-                    bundle = "co.edu.udea.udearroba.properties.SERVADataBase";
+                    RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.SERVADataBase";
                     break;
                 default:
-                    bundle = "";
+                    RESOURCE_BUNDLE_PATH = "";
             }
-            ResourceBundle rb = ResourceBundle.getBundle(bundle);
-            Class.forName(rb.getString("dataBaseDriver"));
-            Connection connection = DriverManager.getConnection(rb.getString("dataBaseURL"), rb.getString("dataBaseUser"), rb.getString("dataBasePassword"));
+            ResourceBundle resource = ResourceBundle.getBundle(RESOURCE_BUNDLE_PATH, new Locale("es"));
+            Class.forName(resource.getString("dataBaseDriver"));
+            Connection connection = DriverManager.getConnection(resource.getString("dataBaseURL"), resource.getString("dataBaseUser"), resource.getString("dataBasePassword"));
             return connection;
         } catch (ClassNotFoundException ex) {
             throw new ClassNotFoundException(Texts.getText("missingDriver"));
