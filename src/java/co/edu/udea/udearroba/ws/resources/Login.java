@@ -32,7 +32,6 @@ public class Login {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String authenticateUser(@PathParam("username") String username, @PathParam("password") String password) {
-        password = password.replace("+", " ");                                // Reset the blank spaces replaced by "+" in the URL.
         AuthenticationManager authManager = new AuthenticationManager();
         JSONObject JSONResponse = new JSONObject();
         try {

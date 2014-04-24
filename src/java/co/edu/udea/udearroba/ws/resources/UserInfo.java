@@ -35,7 +35,6 @@ public class UserInfo {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String getUserInformation(@PathParam("username") String username, @PathParam("password") String password) {
-        password = password.replace("+", " ");                                // Reset the blank sapces replaced by "+" in the URL.
         AuthenticationManager authManager = new AuthenticationManager();
         User user = authManager.getUserInformation(username, password);
         JSONObject JSONResponse = new JSONObject();

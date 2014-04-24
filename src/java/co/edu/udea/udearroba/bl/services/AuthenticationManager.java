@@ -8,9 +8,11 @@ import co.edu.udea.udearroba.dto.SIPEEmployee;
 import co.edu.udea.udearroba.dto.User;
 import co.edu.udea.udearroba.exception.UserDAOException;
 import co.edu.udea.udearroba.i18n.Texts;
+import co.edu.udea.udearroba.util.EncryptionUtil;
 import co.edu.udea.wsClient.OrgSistemasWebServiceClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -22,10 +24,12 @@ import java.util.logging.Logger;
  * @author Diego Rendón
  */
 public class AuthenticationManager {
+
     private boolean useTestingData;                                             // Switches between testing and production modes for the Web Services' calls. Set to true for development and false for production.
     private String TOKEN;                                                       // Token assigned to Ude@ in order to be able to use the REST Web services.
     private String PUBLIC_KEY;                                                  // Public key used by Ude@ in order to be able to use the REST Web services.
     private String SECRET_KEY;                                                  // The secret key used by Ude@ to encrypt/decrypt the data.
+    private String INITIAL_VECTOR;                                              // The initial vector used by Ude@ to encrypt/decrypt the data.
     private final String MUA_AUTHENTICATION_REST_CALL = "validarusuariooidxcn"; // The Web service to call to get the user identification.
     private final String MUA_AUTHENTICATION_PARAM1 = "usuario";                 // The Web service's first param name used to authenticate the user.
     private final String MUA_AUTHENTICATION_PARAM2 = "clave";                   // The Web service's second param name used to authenticate the user.
@@ -36,22 +40,21 @@ public class AuthenticationManager {
     private final String MARES_USERINFO_PARAM1 = "cedula";                      // The Web service's param name used to get the user information.
     private final String SIPE_USERINFO_REST_CALL = "consultaempleadossipe";     // The Web service to call to get the user information of an employee in SIPE.
     private final String SIPE_USERINFO_PARAM1 = "cedula";                       // The Web service's param name used to get the user information.
-    private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.application"; // Resource bundle with the application properties
+    private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.Application"; // Resource bundle with the application properties
     private ResourceBundle resource;
     private UserDAO userDAO;
 
     /**
-     * Constructor.
-     *
-     * Initializes the Web Service client.
+     * Default constructor without parameters.
      */
     public AuthenticationManager() {
         try {
-            this.resource = ResourceBundle.getBundle(RESOURCE_BUNDLE_PATH);
+            this.resource = ResourceBundle.getBundle(RESOURCE_BUNDLE_PATH, new Locale("es"));
             this.useTestingData = Boolean.parseBoolean(resource.getString("useTestingData"));
             this.TOKEN = resource.getString("token");
             this.PUBLIC_KEY = resource.getString("publicKey");
             this.SECRET_KEY = resource.getString("secretKey");
+            this.INITIAL_VECTOR = (this.SECRET_KEY.length() >= 16) ? this.SECRET_KEY.substring(0, 16) : "167c82ec048434e9";
             userDAO = new UserDAO();
         } catch (UserDAOException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("userDAOLogMessage"), ex);
@@ -64,7 +67,7 @@ public class AuthenticationManager {
      * Authenticate the user against the UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The password hash.
+     * @param password The encrypted user password.
      *
      * @return boolean True if the user's credentials were validated against the
      * UdeA Portal or false in other case.
@@ -106,9 +109,9 @@ public class AuthenticationManager {
      * Return the user information from UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The user password hash.
+     * @param password The encrypted user password.
      *
-     * @return User an User DTO with the user information.
+     * @return User An User DTO with the user information.
      */
     public User getUserInformation(String username, String password) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
@@ -128,7 +131,7 @@ public class AuthenticationManager {
             try {
                 studentsList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("MARESuserInfoRESTCallLogMessage"), ex);
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("MARESUserInfoRESTCallLogMessage"), ex);
             }
             int lastRecordIndex = studentsList.size() - 1;
             if (!studentsList.isEmpty() && studentsList.get(lastRecordIndex) != null) {
@@ -157,7 +160,7 @@ public class AuthenticationManager {
                     try {
                         employeesList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
                     } catch (OrgSistemasSecurityException ex) {
-                        Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SIPEuserInfoRESTCallLogMessage"), ex);
+                        Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SIPEUserInfoRESTCallLogMessage"), ex);
                     }
                 }
                 lastRecordIndex = employeesList.size() - 1;
@@ -203,7 +206,7 @@ public class AuthenticationManager {
         isValidIdentification = this.validateIdentification(identification);
         if (isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_USERNAME_PARAM1, identification);
-            RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "CC");                   //TODO: select the correct document type.
+            RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "-");    // This parameter is set to "-" in order to ignore it.
             try {
                 username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
             } catch (OrgSistemasSecurityException ex) {
@@ -218,9 +221,9 @@ public class AuthenticationManager {
      * Returns the identification of a user from UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The user password hash.
+     * @param password The encrypted user password.
      *
-     * @return String the user identification number or NULL.
+     * @return String The user identification number or NULL.
      */
     public String getIdentification(String username, String password) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
@@ -234,7 +237,7 @@ public class AuthenticationManager {
         // First: try to get info from MARES OR SIPE.
         if (!isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM1, username);
-            RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, password);
+            RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, EncryptionUtil.decrypt(password, INITIAL_VECTOR, SECRET_KEY));
             try {
                 identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN).trim();
             } catch (OrgSistemasSecurityException ex) {
@@ -246,11 +249,11 @@ public class AuthenticationManager {
         if (!isValidIdentification) {
             try {
                 AuthenticationInformation authenticationInfo = this.userDAO.getAuthenticationInfoFromSERVA(username, password);
-                if(authenticationInfo != null){
+                if (authenticationInfo != null) {
                     identification = authenticationInfo.getIdentification().trim();
                 }
             } catch (Exception ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVAauthenticationInfoLogMessage"), ex);
+                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVAAuthenticationInfoLogMessage"), ex);
             }
             isValidIdentification = validateIdentification(identification);
         }
@@ -258,12 +261,14 @@ public class AuthenticationManager {
     }
 
     /**
-     * Create or update the user authentication information in SERVA.
+     * Creates or updates the user authentication information in SERVA.
      *
-     * @param username The username.
-     * @param password The user password hash.
+     * @param authInfo An AuthenticationInformation DTO with the user
+     * authentication information to be stored.
      *
-     * @return User an User DTO with the user information.
+     * @return User an User .
+     * @return boolean True if the create or update operation was successfully
+     * performed in the database and False in other case.
      */
     private boolean creteOrUpdateAuthenticationInfo(AuthenticationInformation authInfo) {
         try {
@@ -273,23 +278,23 @@ public class AuthenticationManager {
                 return this.userDAO.insert(authInfo);
             }
         } catch (Exception ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVCreateOrUpdateAauthenticationInfoLogMessage"), ex);
+            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVACreateOrUpdateAauthenticationInfoLogMessage"), ex);
             return false;
         }
     }
 
     /*
-     * Validates if an identification returned for a REST Web Service call is correct.
+     * Validates if an identification number is correct.
      *
-     * @param identification The user identification to test.
+     * @param identification The user identification number to test.
      *
-     * @return bolean True if the user identification is correct and False in other case.
+     * @return boolean True if the user identification is correct and False in other case.
      */
     private boolean validateIdentification(String identification) {
         boolean isValidIdentification = false;
         identification = identification.trim();
         if (identification != null && !identification.contains("ERROR")) {
-            try { // TODO: delete this if the identification contains alphanumeric characters instead of only numbers.
+            try { // TODO: delete this if the identification contains alphanumeric characters instead of only numbers digitss.
                 Long.parseLong(identification);
                 isValidIdentification = true;
             } catch (NumberFormatException exception) {
@@ -300,11 +305,11 @@ public class AuthenticationManager {
     }
 
     /*
-     * Validates if an username returned by a REST Web Service call is correct.
+     * Validates if an username is correct.
      *
      * @param username The username to test.
      *
-     * @return bolean True if the username is correct and False in other case.
+     * @return boolean True if the username is correct and False in other case.
      */
     private boolean validateUsername(String username) {
         boolean isValidUsername = false;
