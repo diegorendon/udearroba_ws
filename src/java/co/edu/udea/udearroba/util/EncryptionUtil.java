@@ -23,16 +23,16 @@ public class EncryptionUtil {
      * Decrypts a user password.
      *
      * @param password The encrypted user password.
-     * @param initialVectorString The initial vector.
-     * @param secretKey The secret key.
+     * @param initializationVectorString The 16 bytes initialization vector string used to decrypt the data.
+     * @param secretKey The 128-bits secret key used to decrypt the data.
      *
      * @return String The unencrypted password.
      */
-    public static String decrypt(String password, String initialVectorString, String secretKey) {
+    public static String decrypt(String password, String initializationVectorString, String secretKey) {
         String decryptedPassword = null;
         try {
             SecretKeySpec secretkeySpec = new SecretKeySpec(md5(secretKey).getBytes(), "AES");
-            IvParameterSpec initialVector = new IvParameterSpec(initialVectorString.getBytes());
+            IvParameterSpec initialVector = new IvParameterSpec(initializationVectorString.getBytes());
             Cipher cipher = Cipher.getInstance("AES/CFB8/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, secretkeySpec, initialVector);
             byte[] encryptedByteArray = (new Base64()).decode(password.getBytes());

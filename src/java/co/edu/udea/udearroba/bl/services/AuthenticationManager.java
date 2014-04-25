@@ -28,8 +28,8 @@ public class AuthenticationManager {
     private boolean useTestingData;                                             // Switches between testing and production modes for the Web Services' calls. Set to true for development and false for production.
     private String TOKEN;                                                       // Token assigned to Ude@ in order to be able to use the REST Web services.
     private String PUBLIC_KEY;                                                  // Public key used by Ude@ in order to be able to use the REST Web services.
-    private String SECRET_KEY;                                                  // The secret key used by Ude@ to encrypt/decrypt the data.
-    private String INITIAL_VECTOR;                                              // The initial vector used by Ude@ to encrypt/decrypt the data.
+    private String SECRET_KEY;                                                  // The 128-bits secret key used by Ude@ to encrypt/decrypt the data.
+    private String INITIALIZATION_VECTOR;                                       // The 16 bytes initialization vector used by Ude@ to encrypt/decrypt the data.
     private final String MUA_AUTHENTICATION_REST_CALL = "validarusuariooidxcn"; // The Web service to call to get the user identification.
     private final String MUA_AUTHENTICATION_PARAM1 = "usuario";                 // The Web service's first param name used to authenticate the user.
     private final String MUA_AUTHENTICATION_PARAM2 = "clave";                   // The Web service's second param name used to authenticate the user.
@@ -54,7 +54,7 @@ public class AuthenticationManager {
             this.TOKEN = resource.getString("token");
             this.PUBLIC_KEY = resource.getString("publicKey");
             this.SECRET_KEY = resource.getString("secretKey");
-            this.INITIAL_VECTOR = (this.SECRET_KEY.length() >= 16) ? this.SECRET_KEY.substring(0, 16) : "167c82ec048434e9";
+            this.INITIALIZATION_VECTOR = resource.getString("initializationVector");
             userDAO = new UserDAO();
         } catch (UserDAOException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("userDAOLogMessage"), ex);
@@ -237,7 +237,7 @@ public class AuthenticationManager {
         // First: try to get info from MARES OR SIPE.
         if (!isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM1, username);
-            RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, EncryptionUtil.decrypt(password, INITIAL_VECTOR, SECRET_KEY));
+            RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, EncryptionUtil.decrypt(password, INITIALIZATION_VECTOR, SECRET_KEY));
             try {
                 identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN).trim();
             } catch (OrgSistemasSecurityException ex) {
