@@ -292,8 +292,8 @@ public class AuthenticationManager {
      */
     private boolean validateIdentification(String identification) {
         boolean isValidIdentification = false;
-        identification = identification.trim();
         if (identification != null && !identification.contains("ERROR")) {
+            identification = identification.trim();
             try { // TODO: delete this if the identification contains alphanumeric characters instead of only numbers digitss.
                 Long.parseLong(identification);
                 isValidIdentification = true;
@@ -313,8 +313,7 @@ public class AuthenticationManager {
      */
     private boolean validateUsername(String username) {
         boolean isValidUsername = false;
-        username = username.trim();
-        if (username != null && !username.contains("ERROR")) {
+        if (username != null && !username.trim().contains("ERROR")) {
             isValidUsername = true;
         }
         return isValidUsername;
