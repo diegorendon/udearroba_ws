@@ -109,7 +109,7 @@ public class AuthenticationManager {
      * Return the user information from UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The encrypted user password.
+     * @param password The encrypted user password using AES128.
      *
      * @return User An User DTO with the user information.
      */
@@ -221,7 +221,7 @@ public class AuthenticationManager {
      * Returns the identification of a user from UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The encrypted user password.
+     * @param password The encrypted user password using AES128.
      *
      * @return String The user identification number or NULL.
      */

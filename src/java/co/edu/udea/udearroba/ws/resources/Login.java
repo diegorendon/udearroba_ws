@@ -2,6 +2,8 @@ package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.i18n.Texts;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.GET;
@@ -32,6 +34,11 @@ public class Login {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String authenticateUser(@PathParam("username") String username, @PathParam("password") String password) {
+        try {
+            password = URLDecoder.decode(password, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, Texts.getText("URLDecodeAuthenticateUserLogMessage"), ex);
+        }
         AuthenticationManager authManager = new AuthenticationManager();
         JSONObject JSONResponse = new JSONObject();
         try {
