@@ -29,7 +29,7 @@ public class UserInfo {
      * given the username and password.
      *
      * @param username The username.
-     * @param password The user password hash.
+     * @param password The encrypted user password using AES128.
      *
      * @return String The JSON data string with the user information.
      */
@@ -38,7 +38,7 @@ public class UserInfo {
     @Produces("application/json" + ";charset=utf-8")
     public String getUserInformation(@PathParam("username") String username, @PathParam("password") String password) {
         try {
-            password = URLDecoder.decode(password, "UTF-8");
+            password = URLDecoder.decode(password, "UTF-8").replace("|", "/");      // Workaround to allow slashes in the URI for the encrypted password parameter.
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, Texts.getText("URLDecodeUserInfoLogMessage"), ex);
         }

@@ -25,7 +25,7 @@ public class Login {
      * Web service for authentication via UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The password hash.
+     * @param password The encrypted user password using AES128.
      *
      * @return boolean True if the user's credentials were validated against the
      * UdeA Portal or false in other case.
@@ -35,7 +35,7 @@ public class Login {
     @Produces("application/json" + ";charset=utf-8")
     public String authenticateUser(@PathParam("username") String username, @PathParam("password") String password) {
         try {
-            password = URLDecoder.decode(password, "UTF-8");
+            password = URLDecoder.decode(password, "UTF-8").replace("|", "/");      // Workaround to allow slashes in the URI for the encrypted password parameter.
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, Texts.getText("URLDecodeAuthenticateUserLogMessage"), ex);
         }
