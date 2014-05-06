@@ -34,11 +34,7 @@ public class Login {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String authenticateUser(@PathParam("username") String username, @PathParam("password") String password) {
-        try {
-            password = URLDecoder.decode(password, "UTF-8").replace("|", "/");      // Workaround to allow slashes in the URI for the encrypted password parameter.
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, Texts.getText("URLDecodeAuthenticateUserLogMessage"), ex);
-        }
+        password = password.replace("|", "/");      // Workaround to allow slashes in the URI for the encrypted password parameter.
         AuthenticationManager authManager = new AuthenticationManager();
         JSONObject JSONResponse = new JSONObject();
         try {
