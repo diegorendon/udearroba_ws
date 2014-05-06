@@ -9,3 +9,4 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+src/java/co/edu/udea/udearroba/properties/SERVADataBase.properties

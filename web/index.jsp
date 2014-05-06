@@ -1,7 +1,7 @@
 <%-- 
     Document   : index
     Created on : 28/02/2014, 10:34:18 AM
-    Author     : Diego
+    Author     : Diego Rendón
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -13,5 +13,6 @@
     </head>
     <body>
         <h1>Servicios Web de Ude@</h1>
+        <p>Versión 1.0</p>
     </body>
 </html>
