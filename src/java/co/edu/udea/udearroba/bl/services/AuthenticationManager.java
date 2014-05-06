@@ -67,7 +67,7 @@ public class AuthenticationManager {
      * Authenticate the user against the UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The encrypted user password.
+     * @param password The encrypted user password using AES128.
      *
      * @return boolean True if the user's credentials were validated against the
      * UdeA Portal or false in other case.
@@ -109,7 +109,7 @@ public class AuthenticationManager {
      * Return the user information from UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The encrypted user password.
+     * @param password The encrypted user password using AES128.
      *
      * @return User An User DTO with the user information.
      */
@@ -122,11 +122,11 @@ public class AuthenticationManager {
         }
         User user = null;
         boolean isValidIdentification;
-        String identification = this.getIdentification(username, password).trim();
+        String identification = this.getIdentification(username, password);
         isValidIdentification = this.validateIdentification(identification);
         if (isValidIdentification && RESTWebServiceClient != null) {
             // First: try to get info from MARES.
-            RESTWebServiceClient.addParam(MARES_USERINFO_PARAM1, identification);
+            RESTWebServiceClient.addParam(MARES_USERINFO_PARAM1, identification.trim());
             List<MARESStudent> studentsList = new ArrayList<MARESStudent>();
             try {
                 studentsList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
@@ -221,7 +221,7 @@ public class AuthenticationManager {
      * Returns the identification of a user from UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The encrypted user password.
+     * @param password The encrypted user password using AES128.
      *
      * @return String The user identification number or NULL.
      */
@@ -239,7 +239,7 @@ public class AuthenticationManager {
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM1, username);
             RESTWebServiceClient.addParam(MUA_AUTHENTICATION_PARAM2, EncryptionUtil.decrypt(password, INITIALIZATION_VECTOR, SECRET_KEY));
             try {
-                identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN).trim();
+                identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN);
             } catch (OrgSistemasSecurityException ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("identificationRESTCallLogMessage"), ex);
             }
@@ -250,14 +250,14 @@ public class AuthenticationManager {
             try {
                 AuthenticationInformation authenticationInfo = this.userDAO.getAuthenticationInfoFromSERVA(username, password);
                 if (authenticationInfo != null) {
-                    identification = authenticationInfo.getIdentification().trim();
+                    identification = authenticationInfo.getIdentification();
                 }
             } catch (Exception ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVAAuthenticationInfoLogMessage"), ex);
             }
             isValidIdentification = validateIdentification(identification);
         }
-        return isValidIdentification ? identification : null;
+        return isValidIdentification ? identification.trim() : null;
     }
 
     /**

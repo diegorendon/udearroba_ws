@@ -3,6 +3,8 @@ package co.edu.udea.udearroba.ws.resources;
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.dto.User;
 import co.edu.udea.udearroba.i18n.Texts;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -27,7 +29,7 @@ public class UserInfo {
      * given the username and password.
      *
      * @param username The username.
-     * @param password The user password hash.
+     * @param password The encrypted user password using AES128.
      *
      * @return String The JSON data string with the user information.
      */
@@ -35,6 +37,7 @@ public class UserInfo {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String getUserInformation(@PathParam("username") String username, @PathParam("password") String password) {
+        password = password.replace("|", "/");      // Workaround to allow slashes in the URI for the encrypted password parameter.
         AuthenticationManager authManager = new AuthenticationManager();
         User user = authManager.getUserInformation(username, password);
         JSONObject JSONResponse = new JSONObject();

@@ -2,6 +2,8 @@ package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.i18n.Texts;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.GET;
@@ -23,7 +25,7 @@ public class Login {
      * Web service for authentication via UdeA Portal's databases.
      *
      * @param username The username.
-     * @param password The password hash.
+     * @param password The encrypted user password using AES128.
      *
      * @return boolean True if the user's credentials were validated against the
      * UdeA Portal or false in other case.
@@ -32,6 +34,7 @@ public class Login {
     @Path("{username}/{password}")
     @Produces("application/json" + ";charset=utf-8")
     public String authenticateUser(@PathParam("username") String username, @PathParam("password") String password) {
+        password = password.replace("|", "/");      // Workaround to allow slashes in the URI for the encrypted password parameter.
         AuthenticationManager authManager = new AuthenticationManager();
         JSONObject JSONResponse = new JSONObject();
         try {
