@@ -2,8 +2,6 @@ package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.GET;
@@ -14,7 +12,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * REST Web Service for Moodle's users authentication.
+ * REST Web Service for users authentication.
  *
  * @author Diego Rendón
  */
