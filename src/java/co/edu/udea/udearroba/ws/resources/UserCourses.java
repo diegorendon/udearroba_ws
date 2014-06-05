@@ -7,7 +7,7 @@
 package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.EnrolmentManager;
-import co.edu.udea.udearroba.dto.Course;
+import co.edu.udea.udearroba.dto.MARESCourse;
 import co.edu.udea.udearroba.i18n.Texts;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class UserCourses {
     @Produces("application/json" + ";charset=utf-8")
     public String getCourses(@PathParam("identification") String identification) {
         EnrolmentManager enrolManager = new EnrolmentManager();
-        List<Course> courseList = enrolManager.getCourses(identification);
+        List<MARESCourse> courseList = enrolManager.getCourses(identification);
         JSONObject JSONResponse = new JSONObject();
         try {
             List<Map<String, String>> courses = new ArrayList<Map<String, String>>();
