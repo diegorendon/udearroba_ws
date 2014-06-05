@@ -5,7 +5,7 @@ package co.edu.udea.udearroba.dto;
  * 
  * @author Diego Rendón
  */
-public class Course {
+public class MARESCourse {
     
     // Variable names should be in spanish to match the Web Service response from OrgSistemasWebServiceClient.
     private String semestre;

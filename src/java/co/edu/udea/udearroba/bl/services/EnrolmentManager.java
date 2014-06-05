@@ -2,7 +2,7 @@ package co.edu.udea.udearroba.bl.services;
 
 import co.edu.udea.exception.OrgSistemasSecurityException;
 import co.edu.udea.udearroba.dto.AcademicInformation;
-import co.edu.udea.udearroba.dto.Course;
+import co.edu.udea.udearroba.dto.MARESCourse;
 import co.edu.udea.udearroba.i18n.Texts;
 import co.edu.udea.wsClient.OrgSistemasWebServiceClient;
 import java.util.ArrayList;
@@ -87,9 +87,9 @@ public class EnrolmentManager {
      *
      * @param identification The user identification.
      *
-     * @return List<Course> A list of Course DTOs with the user's information or NULL.
+     * @return List<MARESCourse> A list of MARESCourse DTOs with the user's information or NULL.
      */
-    public List<Course> getCourses(String identification) {
+    public List<MARESCourse> getCourses(String identification) {
         OrgSistemasWebServiceClient RESTWebServiceClient = null;
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
@@ -104,14 +104,14 @@ public class EnrolmentManager {
         if (!academicInformationList.isEmpty() && academicInformationList.get(lastSemesterIndex) != null){
             currentSemesterInformation = academicInformationList.get(lastSemesterIndex);
         }
-        List<Course> courseList = null;
+        List<MARESCourse> courseList = null;
         if (isValidIdentification && RESTWebServiceClient != null && currentSemesterInformation != null) {
             RESTWebServiceClient.addParam(MARES_COURSES_PARAM1, identification);
             RESTWebServiceClient.addParam(MARES_COURSES_PARAM2, currentSemesterInformation.getPrograma());
             RESTWebServiceClient.addParam(MARES_COURSES_PARAM3, currentSemesterInformation.getSemestre());
-            courseList = new ArrayList<Course>();
+            courseList = new ArrayList<MARESCourse>();
             try {
-                courseList = RESTWebServiceClient.obtenerBean(MARES_COURSES_REST_CALL, TOKEN, Course.class);
+                courseList = RESTWebServiceClient.obtenerBean(MARES_COURSES_REST_CALL, TOKEN, MARESCourse.class);
             } catch (OrgSistemasSecurityException ex) {
                 Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("coursesRESTCallLogMessage"), ex);
             }            
