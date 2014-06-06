@@ -19,7 +19,7 @@ import org.codehaus.jettison.json.JSONObject;
  *
  * @author Diego Rendón
  */
-@Path("/userinfo")
+@Path("/userinformation")
 public class UserInformation {
 
     /**
