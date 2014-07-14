@@ -180,10 +180,6 @@ public class AuthenticationManager {
                     user.setCountry(null);
                 }
             }
-            if (user != null) {
-                AuthenticationInformation authenticationInfo = new AuthenticationInformation(user.getUserName(), password, user.getIdNumber());
-                this.creteOrUpdateAuthenticationInfo(authenticationInfo);
-            }
         }
         return user;
     }
@@ -246,6 +242,10 @@ public class AuthenticationManager {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("identificationRESTCallLogMessage"), ex);
             }
             isValidIdentification = this.validator.validateIdentification(identification);
+            if (isValidIdentification) {
+                AuthenticationInformation authenticationInfo = new AuthenticationInformation(username, password, identification.trim());
+                this.creteOrUpdateAuthenticationInfo(authenticationInfo);
+            }
         }
         // Second: try to get info from SERVA if the past try had failed.
         if (!isValidIdentification) {

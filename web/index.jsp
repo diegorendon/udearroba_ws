@@ -13,6 +13,6 @@
     </head>
     <body>
         <h1>Servicios Web de Ude@</h1>
-        <p>Versión 1.2</p>
+        <p>Versión 1.2.1</p>
     </body>
 </html>
