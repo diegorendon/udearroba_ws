@@ -18,8 +18,8 @@ import java.util.ResourceBundle;
  * @author Diego Rendón
  */
 public class CourseDAO implements CourseDAOInterface {
-    private final String SERVA_QUERY_COURSE_BY_KEY = "getCourseByKey";              // Name of the string of SQL query by key for SERVA.
-    private final String SERVA_QUERY_METACOURSE_BY_KEY = "getMetacourseByKey";      // Name of the string of SQL query by key for SERVA.
+    private final String SERVA_QUERY_COURSE_BY_KEY = "getCourseByKey";              // Name of the string of SQL query for a course by key from SERVA.
+    private final String SERVA_QUERY_METACOURSE_BY_COURSE_KEY = "getMetacourseByCourseKey";// Name of the string of SQL query for a metacourse by course key from SERVA.
     private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.CourseDAOQueries";
     private ResourceBundle resource;
     
@@ -78,20 +78,21 @@ public class CourseDAO implements CourseDAOInterface {
     /**
      * @see CourseDAOInterface#getMetacourseFromSERVA(java.lang.String) 
      *
-     * @param key The key that identifies the metacourse.
+     * @param courseKey The key of the course for search the correspondent metacourse.
      *
      * @return Metacourse object that contains the metacourse information
-     * asociated with the given key.
+     * asociated with the given course key or NULL if the course does not belong
+     * to a metacourse.
      * @throws co.edu.udea.udearroba.exception.CourseDAOException
      * @throws Exception
      */
-    public Metacourse getMetacourseFromSERVA(String key) throws Exception {
+    public Metacourse getMetacourseFromSERVA(String courseKey) throws Exception {
         Connection connection = ConnectionManager.getConnection(ConnectionManager.SERVA);
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            preparedStatement = connection.prepareStatement(resource.getString(SERVA_QUERY_METACOURSE_BY_KEY));
-            preparedStatement.setString(1, key);
+            preparedStatement = connection.prepareStatement(resource.getString(SERVA_QUERY_METACOURSE_BY_COURSE_KEY));
+            preparedStatement.setString(1, courseKey);
             resultSet = preparedStatement.executeQuery();
             Metacourse metacourse = new Metacourse();
             if (resultSet.next()) {

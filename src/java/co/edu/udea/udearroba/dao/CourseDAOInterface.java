@@ -25,13 +25,14 @@ public interface CourseDAOInterface {
     /**
      * Retrieves the metacourse information asociated with the given key.
      *
-     * @param key The key that identifies the metacourse.
+     * @param courseKey The key of the course for search the correspondent metacourse.
      *
      * @return Metacourse object that contains the metacourse information
-     * asociated with the given key.
+     * asociated with the given course key or NULL if the course does not belong
+     * to a metacourse.
      * @throws co.edu.udea.udearroba.exception.CourseDAOException
      * @throws Exception
      */
-    public Metacourse getMetacourseFromSERVA(String key) throws Exception;
+    public Metacourse getMetacourseFromSERVA(String courseKey) throws Exception;
 
 }
