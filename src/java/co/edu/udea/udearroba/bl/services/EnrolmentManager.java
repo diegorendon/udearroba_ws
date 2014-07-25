@@ -1,8 +1,11 @@
 package co.edu.udea.udearroba.bl.services;
 
 import co.edu.udea.exception.OrgSistemasSecurityException;
+import co.edu.udea.udearroba.dao.impl.CourseDAO;
 import co.edu.udea.udearroba.dto.AcademicInformation;
 import co.edu.udea.udearroba.dto.MARESCourse;
+import co.edu.udea.udearroba.dto.Metacourse;
+import co.edu.udea.udearroba.exception.CourseDAOException;
 import co.edu.udea.udearroba.i18n.Texts;
 import co.edu.udea.wsClient.OrgSistemasWebServiceClient;
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ public class EnrolmentManager {
     private final String MARES_COURSES_PARAM3 = "semestre";                     // The Web service's third param name used to get the user's courses.
     private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.Application"; // Resource bundle with the application properties
     private ResourceBundle resource;
+    private CourseDAO courseDAO;
     private Validator validator;
 
     /**
@@ -46,8 +50,11 @@ public class EnrolmentManager {
             this.PUBLIC_KEY = resource.getString("publicKey");
             this.SECRET_KEY = resource.getString("secretKey");
             this.INITIALIZATION_VECTOR = resource.getString("initializationVector");
+            courseDAO = new CourseDAO();
             validator = new Validator();
-        } catch (MissingResourceException ex) {
+        } catch (CourseDAOException ex) {
+            Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("courseDAOLogMessage"), ex);
+        }catch (MissingResourceException ex) {
             Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("applicationPropertiesLogMessage"), ex);
         }
     }
@@ -117,5 +124,22 @@ public class EnrolmentManager {
             }            
         }
         return courseList;
+    }
+    
+    /**
+     * Returns the metacourse associated with a course.
+     *
+     * @param coursekey The key of the course to check if has associated metacourses.
+     *
+     * @return Metacourse a metacourse DTO associated with the course 
+     * identified by coursekey if exist or NULL.
+     */
+    public Metacourse getMetacourse(String coursekey) {
+        try {
+            return this.courseDAO.getMetacourseFromSERVA(coursekey);
+        } catch (Exception ex) {
+            Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVAMetacourseInfoLogMessage"), ex);
+        }
+        return null;
     }
 }

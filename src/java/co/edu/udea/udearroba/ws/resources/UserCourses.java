@@ -8,8 +8,8 @@ package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.EnrolmentManager;
 import co.edu.udea.udearroba.dto.MARESCourse;
+import co.edu.udea.udearroba.dto.Metacourse;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -43,10 +44,10 @@ public class UserCourses {
     @Produces("application/json" + ";charset=utf-8")
     public String getCourses(@PathParam("identification") String identification) {
         EnrolmentManager enrolManager = new EnrolmentManager();
-        List<MARESCourse> courseList = enrolManager.getCourses(identification);
+        List<MARESCourse> courseList = enrolManager.getCourses(identification);      
         JSONObject JSONResponse = new JSONObject();
         try {
-            List<Map<String, String>> courses = new ArrayList<Map<String, String>>();
+            JSONArray JSONCourses = new JSONArray();
             if (courseList != null) {
                 for (int i = 0; i < courseList.size(); i++) {
                     Map<String, String> courseInfoMap = new HashMap<String, String>();
@@ -58,13 +59,19 @@ public class UserCourses {
                     courseInfoMap.put("creditos", courseList.get(i).getCreditos());
                     courseInfoMap.put("tipoHomologacion", courseList.get(i).getTipoHomologacion());
                     courseInfoMap.put("nota", courseList.get(i).getNota());
-                    courses.add(courseInfoMap);
+                    // Add the Moodle idNumber of the correspondent course or metacourse.
+                    String code = courseList.get(i).getCodigo();
+                    String courseKey = code.substring(0, 3)+"-"+code.substring(3, 6)+"-"+courseList.get(i).getGrupo();
+                    Metacourse metacurso = enrolManager.getMetacourse(courseKey);
+                    if(metacurso != null){
+                        courseInfoMap.put("codigoMoodle", metacurso.getKey());
+                    }else{
+                        courseInfoMap.put("codigoMoodle", courseKey);
+                    }
+                    JSONCourses.put(courseInfoMap);
                 }
-                JSONResponse.put("response", courses);
-            } else {
-                courses.clear();
-                JSONResponse.put("response", courses);
-            }
+            } 
+            JSONResponse.put("response", JSONCourses);
         } catch (JSONException ex) {
             Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
         }

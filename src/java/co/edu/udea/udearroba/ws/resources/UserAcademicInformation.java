@@ -3,7 +3,6 @@ package co.edu.udea.udearroba.ws.resources;
 import co.edu.udea.udearroba.bl.services.EnrolmentManager;
 import co.edu.udea.udearroba.dto.AcademicInformation;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -23,10 +23,10 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/useracademicinformation")
 public class UserAcademicInformation {
-    
+
     /**
-     * Web service for retrieving user's academic information from UdeA Portal's databases
-     * given the identification.
+     * Web service for retrieving user's academic information from UdeA Portal's
+     * databases given the identification.
      *
      * @param identification The user identification.
      *
@@ -40,7 +40,7 @@ public class UserAcademicInformation {
         List<AcademicInformation> academicInformationList = enrolManager.getAcademicInformation(identification);
         JSONObject JSONResponse = new JSONObject();
         try {
-            List<Map<String, String>> academicInformation = new ArrayList<Map<String, String>>();
+            JSONArray JSONSemesters = new JSONArray();
             if (academicInformationList != null) {
                 for (int i = 0; i < academicInformationList.size(); i++) {
                     Map<String, String> semesterInfoMap = new HashMap<String, String>();
@@ -59,13 +59,10 @@ public class UserAcademicInformation {
                     semesterInfoMap.put("numeroCanceladas", academicInformationList.get(i).getNumeroCanceladas());
                     semesterInfoMap.put("tipoHomologacion", academicInformationList.get(i).getTipoHomologacion());
                     semesterInfoMap.put("nombrePrograma", academicInformationList.get(i).getNombrePrograma());
-                    academicInformation.add(semesterInfoMap);
+                    JSONSemesters.put(semesterInfoMap);
                 }
-                JSONResponse.put("response", academicInformation);
-            } else {
-                academicInformation.clear();
-                JSONResponse.put("response", academicInformation);
-            }
+            } 
+            JSONResponse.put("response", JSONSemesters);
         } catch (JSONException ex) {
             Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
         }
