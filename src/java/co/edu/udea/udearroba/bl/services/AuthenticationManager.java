@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manage the authentication procces of the UdeA Portal's users.
+ * Manage the authentication process of the UdeA Portal's users.
  *
  * @author Diego Rendón
  */
@@ -43,6 +43,7 @@ public class AuthenticationManager {
     private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.Application"; // Resource bundle with the application properties
     private ResourceBundle resource;
     private UserDAO userDAO;
+    private Validator validator;
 
     /**
      * Default constructor without parameters.
@@ -56,6 +57,7 @@ public class AuthenticationManager {
             this.SECRET_KEY = resource.getString("secretKey");
             this.INITIALIZATION_VECTOR = resource.getString("initializationVector");
             userDAO = new UserDAO();
+            validator = new Validator();
         } catch (UserDAOException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("userDAOLogMessage"), ex);
         } catch (MissingResourceException ex) {
@@ -75,7 +77,7 @@ public class AuthenticationManager {
     public boolean authenticateUser(String username, String password) {
         boolean userValidated;
         String identification = this.getIdentification(username, password);
-        userValidated = this.validateIdentification(identification);
+        userValidated = this.validator.validateIdentification(identification);
         return userValidated;
     }
 
@@ -101,7 +103,7 @@ public class AuthenticationManager {
         } catch (OrgSistemasSecurityException ex) {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("usernameRESTCallLogMessage"), ex);
         }
-        userExist = this.validateUsername(username);
+        userExist = this.validator.validateUsername(username);
         return userExist;
     }
 
@@ -123,19 +125,19 @@ public class AuthenticationManager {
         User user = null;
         boolean isValidIdentification;
         String identification = this.getIdentification(username, password);
-        isValidIdentification = this.validateIdentification(identification);
+        isValidIdentification = this.validator.validateIdentification(identification);
         if (isValidIdentification && RESTWebServiceClient != null) {
             // First: try to get info from MARES.
             RESTWebServiceClient.addParam(MARES_USERINFO_PARAM1, identification.trim());
-            List<MARESStudent> studentsList = new ArrayList<MARESStudent>();
+            List<MARESStudent> studentList = new ArrayList<MARESStudent>();
             try {
-                studentsList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
+                studentList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
             } catch (OrgSistemasSecurityException ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("MARESUserInfoRESTCallLogMessage"), ex);
             }
-            int lastRecordIndex = studentsList.size() - 1;
-            if (!studentsList.isEmpty() && studentsList.get(lastRecordIndex) != null) {
-                MARESStudent student = (MARESStudent) studentsList.get(lastRecordIndex); // Take the last record returned
+            int lastRecordIndex = studentList.size() - 1;
+            if (!studentList.isEmpty() && studentList.get(lastRecordIndex) != null) {
+                MARESStudent student = (MARESStudent) studentList.get(lastRecordIndex); // Take the last record returned
                 user = new User();
                 user.setIdNumber(identification);
                 user.setUserName(username);
@@ -154,18 +156,18 @@ public class AuthenticationManager {
                 } catch (OrgSistemasSecurityException ex) {
                     Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage"), ex);
                 }
-                List<SIPEEmployee> employeesList = new ArrayList<SIPEEmployee>();
+                List<SIPEEmployee> employeeList = new ArrayList<SIPEEmployee>();
                 if (RESTWebServiceClient != null) {
                     RESTWebServiceClient.addParam(SIPE_USERINFO_PARAM1, identification);
                     try {
-                        employeesList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
+                        employeeList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
                     } catch (OrgSistemasSecurityException ex) {
                         Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SIPEUserInfoRESTCallLogMessage"), ex);
                     }
                 }
-                lastRecordIndex = employeesList.size() - 1;
-                if (!employeesList.isEmpty() && employeesList.get(lastRecordIndex) != null) {
-                    SIPEEmployee employee = (SIPEEmployee) employeesList.get(lastRecordIndex); // Take the last record returned
+                lastRecordIndex = employeeList.size() - 1;
+                if (!employeeList.isEmpty() && employeeList.get(lastRecordIndex) != null) {
+                    SIPEEmployee employee = (SIPEEmployee) employeeList.get(lastRecordIndex); // Take the last record returned
                     user = new User();
                     user.setIdNumber(identification);
                     user.setUserName(username);
@@ -199,7 +201,7 @@ public class AuthenticationManager {
         }
         boolean isValidIdentification, isValidUsername = false;
         String username = "ERROR";
-        isValidIdentification = this.validateIdentification(identification);
+        isValidIdentification = this.validator.validateIdentification(identification);
         if (isValidIdentification && RESTWebServiceClient != null) {
             RESTWebServiceClient.addParam(MUA_USERNAME_PARAM1, identification);
             RESTWebServiceClient.addParam(MUA_USERNAME_PARAM2, "-");    // This parameter is set to "-" in order to ignore it.
@@ -208,7 +210,7 @@ public class AuthenticationManager {
             } catch (OrgSistemasSecurityException ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("usernameRESTCallLogMessage"), ex);
             }
-            isValidUsername = this.validateUsername(username);
+            isValidUsername = this.validator.validateUsername(username);
         }
         return isValidUsername ? username : null;
     }
@@ -239,7 +241,7 @@ public class AuthenticationManager {
             } catch (OrgSistemasSecurityException ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("identificationRESTCallLogMessage"), ex);
             }
-            isValidIdentification = validateIdentification(identification);
+            isValidIdentification = this.validator.validateIdentification(identification);
             if (isValidIdentification) {
                 AuthenticationInformation authenticationInfo = new AuthenticationInformation(username, password, identification.trim());
                 this.creteOrUpdateAuthenticationInfo(authenticationInfo);
@@ -255,7 +257,7 @@ public class AuthenticationManager {
             } catch (Exception ex) {
                 Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVAAuthenticationInfoLogMessage"), ex);
             }
-            isValidIdentification = validateIdentification(identification);
+            isValidIdentification = this.validator.validateIdentification(identification);
         }
         return isValidIdentification ? identification.trim() : null;
     }
@@ -281,41 +283,5 @@ public class AuthenticationManager {
             Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVACreateOrUpdateAauthenticationInfoLogMessage"), ex);
             return false;
         }
-    }
-
-    /*
-     * Validates if an identification number is correct.
-     *
-     * @param identification The user identification number to test.
-     *
-     * @return boolean True if the user identification is correct and False in other case.
-     */
-    private boolean validateIdentification(String identification) {
-        boolean isValidIdentification = false;
-        if (identification != null && !identification.contains("ERROR")) {
-            identification = identification.trim();
-            try { // TODO: delete this if the identification contains alphanumeric characters instead of only numbers digitss.
-                Long.parseLong(identification);
-                isValidIdentification = true;
-            } catch (NumberFormatException exception) {
-                isValidIdentification = false;
-            }
-        }
-        return isValidIdentification;
-    }
-
-    /*
-     * Validates if an username is correct.
-     *
-     * @param username The username to test.
-     *
-     * @return boolean True if the username is correct and False in other case.
-     */
-    private boolean validateUsername(String username) {
-        boolean isValidUsername = false;
-        if (username != null && !username.trim().contains("ERROR")) {
-            isValidUsername = true;
-        }
-        return isValidUsername;
     }
 }

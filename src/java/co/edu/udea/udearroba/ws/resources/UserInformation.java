@@ -3,8 +3,6 @@ package co.edu.udea.udearroba.ws.resources;
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.dto.User;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -17,12 +15,12 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * REST Web Service for retrieving Moodle's users information.
+ * REST Web Service for retrieving users information.
  *
  * @author Diego Rendón
  */
-@Path("/userinfo")
-public class UserInfo {
+@Path("/userinformation")
+public class UserInformation {
 
     /**
      * Web service for retrieving user information from UdeA Portal's databases
@@ -59,7 +57,7 @@ public class UserInfo {
                 JSONResponse.put("response", userInfoMap);
             }
         } catch (JSONException ex) {
-            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
+            Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
         }
         return JSONResponse.toString();
     }
@@ -82,7 +80,7 @@ public class UserInfo {
         try {
             JSONResponse.put("response", username);
         } catch (JSONException ex) {
-            Logger.getLogger(UserInfo.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserNameLogMessage"), ex);
+            Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserNameLogMessage"), ex);
         }
         return JSONResponse.toString();
     }
