@@ -35,6 +35,8 @@ public class EnrolmentManager {
     private final String MARES_COURSES_PARAM2 = "programa";                     // The Web service's second param name used to get the user's courses.
     private final String MARES_COURSES_PARAM3 = "semestre";                     // The Web service's third param name used to get the user's courses.
     private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.Application"; // Resource bundle with the application properties
+    private final String LOG_IDENTIFICATION_TEXT = " | identification: ";       // The text to indicate the identification in the log messages.
+    private final String LOG_USERNAME_TEXT = " | username: ";                   // The text to indicate the username in the log messages.
     private ResourceBundle resource;
     private CourseDAO courseDAO;
     private Validator validator;
@@ -72,7 +74,7 @@ public class EnrolmentManager {
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage"), ex);
+            Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
         }
         boolean isValidIdentification;
         isValidIdentification = this.validator.validateIdentification(identification);
@@ -83,7 +85,7 @@ public class EnrolmentManager {
             try {
                 academicInformationList = RESTWebServiceClient.obtenerBean(MARES_ACADEMIC_INFO_REST_CALL, TOKEN, AcademicInformation.class);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("academicinformationRESTCallLogMessage"), ex);
+                Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("academicinformationRESTCallLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
             }        
         }
         return academicInformationList;
@@ -101,7 +103,7 @@ public class EnrolmentManager {
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage"), ex);
+            Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
         }
         List<AcademicInformation> academicInformationList = this.getAcademicInformation(identification);
         boolean isValidIdentification;
@@ -120,7 +122,7 @@ public class EnrolmentManager {
             try {
                 courseList = RESTWebServiceClient.obtenerBean(MARES_COURSES_REST_CALL, TOKEN, MARESCourse.class);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("coursesRESTCallLogMessage"), ex);
+                Logger.getLogger(EnrolmentManager.class.getName()).log(Level.SEVERE, Texts.getText("coursesRESTCallLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
             }            
         }
         return courseList;
