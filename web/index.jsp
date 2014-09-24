@@ -13,7 +13,7 @@
     </head>
     <body>
         <h1>Servicios Web de Ude@</h1>
-        <p>Versión 1.3</p>
-        <p>(Build: 2014073100)</p>
+        <p>Versión 1.3.1</p>
+        <p>(Build: 2014092400)</p>
     </body>
 </html>
