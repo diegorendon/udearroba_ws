@@ -34,6 +34,8 @@ public class EnrolmentManager {
     private final String MARES_COURSES_PARAM1 = "cedula";                       // The Web service's first param name used to get the user's courses.
     private final String MARES_COURSES_PARAM2 = "programa";                     // The Web service's second param name used to get the user's courses.
     private final String MARES_COURSES_PARAM3 = "semestre";                     // The Web service's third param name used to get the user's courses.
+    private final String MARES_COURSES_PARAM4 = "tipoHomolog";                  // The Web service's fourth param name used to get the user's courses.
+    private final String MARES_COURSES_PARAM4_VALUE = "MATRIC";                 // The Web service's fourth param value used to get the user's courses.
     private final String RESOURCE_BUNDLE_PATH = "co.edu.udea.udearroba.properties.Application"; // Resource bundle with the application properties
     private final String LOG_IDENTIFICATION_TEXT = " | identification: ";       // The text to indicate the identification in the log messages.
     private final String LOG_USERNAME_TEXT = " | username: ";                   // The text to indicate the username in the log messages.
@@ -118,6 +120,7 @@ public class EnrolmentManager {
             RESTWebServiceClient.addParam(MARES_COURSES_PARAM1, identification);
             RESTWebServiceClient.addParam(MARES_COURSES_PARAM2, currentSemesterInformation.getPrograma());
             RESTWebServiceClient.addParam(MARES_COURSES_PARAM3, currentSemesterInformation.getSemestre());
+            RESTWebServiceClient.addParam(MARES_COURSES_PARAM4, MARES_COURSES_PARAM4_VALUE);
             courseList = new ArrayList<MARESCourse>();
             try {
                 courseList = RESTWebServiceClient.obtenerBean(MARES_COURSES_REST_CALL, TOKEN, MARESCourse.class);
