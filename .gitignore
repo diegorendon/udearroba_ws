@@ -1,7 +1,4 @@
-*.class
-*.o
-*.log
-*.bak
+# NetBeans specific #
 nbproject/private/
 build/
 nbbuild/
@@ -9,4 +6,25 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
-src/java/co/edu/udea/udearroba/properties/SERVADataBase.properties
+
+# Class Files #
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Maven specific #
+target/
+
+# General swap/backup files #
+*.o
+*.so
+*.out
+*.log
+*.bak
+*~
+*.swp
+*.DS_Store
+*.lock
