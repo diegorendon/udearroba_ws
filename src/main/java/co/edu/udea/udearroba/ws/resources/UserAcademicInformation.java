@@ -6,8 +6,6 @@ import co.edu.udea.udearroba.i18n.Texts;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -15,6 +13,7 @@ import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST Web Service for user's academic information.
@@ -23,6 +22,8 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/useracademicinformation")
 public class UserAcademicInformation {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UserAcademicInformation.class);
 
     /**
      * Web service for retrieving user's academic information from UdeA Portal's
@@ -61,10 +62,10 @@ public class UserAcademicInformation {
                     semesterInfoMap.put("nombrePrograma", academicInformationList.get(i).getNombrePrograma());
                     JSONSemesters.put(semesterInfoMap);
                 }
-            } 
+            }
             JSONResponse.put("response", JSONSemesters);
         } catch (JSONException ex) {
-            Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("JSONResponseUserInfoLogMessage"), ex.getMessage());
         }
         return JSONResponse.toString();
     }

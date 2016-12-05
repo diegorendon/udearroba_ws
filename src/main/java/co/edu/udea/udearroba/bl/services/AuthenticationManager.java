@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manage the authentication process of the UdeA Portal's users.
@@ -24,6 +23,8 @@ import java.util.logging.Logger;
  * @author Diego Rendón
  */
 public class AuthenticationManager {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AuthenticationManager.class);
 
     private boolean useTestingData;                                             // Switches between testing and production modes for the Web Services' calls. Set to true for development and false for production.
     private String TOKEN;                                                       // Token assigned to Ude@ in order to be able to use the REST Web services.
@@ -61,9 +62,9 @@ public class AuthenticationManager {
             userDAO = new UserDAO();
             validator = new Validator();
         } catch (UserDAOException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("userDAOLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("userDAOLogMessage"), ex.getMessage());
         } catch (MissingResourceException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("applicationPropertiesLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("applicationPropertiesLogMessage"), ex.getMessage());
         }
     }
 
@@ -96,14 +97,14 @@ public class AuthenticationManager {
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
+            logger.error("{} - id = {} | {}", Texts.getText("RESTWebServiceClientLogMessage"), identification, ex.getMessage());
         }
         boolean userExist;
         String username = null;
         try {
             username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("usernameRESTCallLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
+            logger.error("{} - id = {} | {}", Texts.getText("usernameRESTCallLogMessage"), identification, ex.getMessage());
         }
         userExist = this.validator.validateUsername(username);
         return userExist;
@@ -122,7 +123,7 @@ public class AuthenticationManager {
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage")+ LOG_USERNAME_TEXT + username, ex);
+            logger.error("{} - usr = {} | {}", Texts.getText("RESTWebServiceClientLogMessage"), username, ex.getMessage());
         }
         User user = null;
         boolean isValidIdentification;
@@ -135,7 +136,7 @@ public class AuthenticationManager {
             try {
                 studentList = RESTWebServiceClient.obtenerBean(MARES_USERINFO_REST_CALL, TOKEN, MARESStudent.class);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("MARESUserInfoRESTCallLogMessage") + LOG_USERNAME_TEXT + username, ex);
+                logger.error("{} - usr = {} | {}", Texts.getText("MARESUserInfoRESTCallLogMessage"), username, ex.getMessage());
             }
             int lastRecordIndex = studentList.size() - 1;
             if (!studentList.isEmpty() && studentList.get(lastRecordIndex) != null) {
@@ -156,7 +157,7 @@ public class AuthenticationManager {
                 try {
                     RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
                 } catch (OrgSistemasSecurityException ex) {
-                    Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage") + LOG_USERNAME_TEXT + username, ex);
+                    logger.error("{} - usr = {} | {}", Texts.getText("RESTWebServiceClientLogMessage"), username, ex.getMessage());
                 }
                 List<SIPEEmployee> employeeList = new ArrayList<SIPEEmployee>();
                 if (RESTWebServiceClient != null) {
@@ -164,7 +165,7 @@ public class AuthenticationManager {
                     try {
                         employeeList = RESTWebServiceClient.obtenerBean(SIPE_USERINFO_REST_CALL, TOKEN, SIPEEmployee.class);
                     } catch (OrgSistemasSecurityException ex) {
-                        Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SIPEUserInfoRESTCallLogMessage") + LOG_USERNAME_TEXT + username, ex);
+                        logger.error("{} - usr = {} | {}", Texts.getText("SIPEUserInfoRESTCallLogMessage"), username, ex.getMessage());
                     }
                 }
                 lastRecordIndex = employeeList.size() - 1;
@@ -199,7 +200,7 @@ public class AuthenticationManager {
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(useTestingData);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
+            logger.error("{} - id = {} | {}", Texts.getText("RESTWebServiceClientLogMessage"), identification, ex.getMessage());
         }
         boolean isValidIdentification, isValidUsername = false;
         String username = "ERROR";
@@ -210,7 +211,7 @@ public class AuthenticationManager {
             try {
                 username = RESTWebServiceClient.obtenerString(MUA_USERNAME_REST_CALL, TOKEN);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("usernameRESTCallLogMessage") + LOG_IDENTIFICATION_TEXT + identification, ex);
+            logger.error("{} - id = {} | {}", Texts.getText("usernameRESTCallLogMessage"), identification, ex.getMessage());
             }
             isValidUsername = this.validator.validateUsername(username);
         }
@@ -230,7 +231,7 @@ public class AuthenticationManager {
         try {
             RESTWebServiceClient = new OrgSistemasWebServiceClient(PUBLIC_KEY, useTestingData);
         } catch (OrgSistemasSecurityException ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("RESTWebServiceClientLogMessage") + LOG_USERNAME_TEXT + username, ex);
+            logger.error("{} - usr = {} | {}", Texts.getText("RESTWebServiceClientLogMessage"), username, ex.getMessage());
         }
         String identification = "ERROR";
         boolean isValidIdentification = false;
@@ -241,7 +242,7 @@ public class AuthenticationManager {
             try {
                 identification = RESTWebServiceClient.obtenerString(MUA_AUTHENTICATION_REST_CALL, TOKEN);
             } catch (OrgSistemasSecurityException ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("identificationRESTCallLogMessage") + LOG_USERNAME_TEXT + username, ex);
+                logger.error("{} - usr = {} | {}", Texts.getText("identificationRESTCallLogMessage"), username, ex.getMessage());
             }
             isValidIdentification = this.validator.validateIdentification(identification);
             if (isValidIdentification) {
@@ -257,7 +258,7 @@ public class AuthenticationManager {
                     identification = authenticationInfo.getIdentification();
                 }
             } catch (Exception ex) {
-                Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVAAuthenticationInfoLogMessage") + LOG_USERNAME_TEXT + username, ex);
+                logger.error("{} - usr = {} | {}", Texts.getText("SERVAAuthenticationInfoLogMessage"), username, ex.getMessage());
             }
             isValidIdentification = this.validator.validateIdentification(identification);
         }
@@ -282,7 +283,7 @@ public class AuthenticationManager {
                 return this.userDAO.insert(authInfo);
             }
         } catch (Exception ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("SERVACreateOrUpdateAauthenticationInfoLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("SERVACreateOrUpdateAauthenticationInfoLogMessage"), ex.getMessage());
             return false;
         }
     }

@@ -2,14 +2,13 @@ package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST Web Service for retrieving users identification numbers.
@@ -18,7 +17,9 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/useridentification")
 public class UserIdentification {
-    
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UserIdentification.class);
+
     /**
      * Web service for retrieving user identification from UdeA Portal's databases.
      *
@@ -38,7 +39,7 @@ public class UserIdentification {
         try {
             JSONResponse.put("response", identification);
         } catch (JSONException ex) {
-            Logger.getLogger(UserIdentification.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserNameLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("JSONResponseUserNameLogMessage"), ex.getMessage());
         }
         return JSONResponse.toString();
     }

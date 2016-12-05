@@ -13,8 +13,6 @@ import co.edu.udea.udearroba.i18n.Texts;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -22,6 +20,7 @@ import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST Web Service for user's courses information.
@@ -30,7 +29,9 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/courses")
 public class UserCourses {
-    
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UserCourses.class);
+
     /**
      * Web service for retrieving user's courses list from UdeA Portal's databases
      * given the identification.
@@ -44,7 +45,7 @@ public class UserCourses {
     @Produces("application/json" + ";charset=utf-8")
     public String getCourses(@PathParam("identification") String identification) {
         EnrolmentManager enrolManager = new EnrolmentManager();
-        List<MARESCourse> courseList = enrolManager.getCourses(identification);      
+        List<MARESCourse> courseList = enrolManager.getCourses(identification);
         JSONObject JSONResponse = new JSONObject();
         try {
             JSONArray JSONCourses = new JSONArray();
@@ -70,10 +71,10 @@ public class UserCourses {
                     }
                     JSONCourses.put(courseInfoMap);
                 }
-            } 
+            }
             JSONResponse.put("response", JSONCourses);
         } catch (JSONException ex) {
-            Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("JSONResponseUserInfoLogMessage"), ex.getMessage());
         }
         return JSONResponse.toString();
     }

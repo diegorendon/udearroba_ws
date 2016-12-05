@@ -42,5 +42,5 @@ public class Validator {
         }
         return isValidUsername;
     }
-    
+
 }

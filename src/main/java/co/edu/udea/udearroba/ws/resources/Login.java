@@ -1,15 +1,15 @@
 package co.edu.udea.udearroba.ws.resources;
 
 import co.edu.udea.udearroba.bl.services.AuthenticationManager;
+import co.edu.udea.udearroba.bl.services.EnrolmentManager;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST Web Service for users authentication.
@@ -18,6 +18,8 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/login")
 public class Login {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Login.class);
 
     /**
      * Web service for authentication via UdeA Portal's databases.
@@ -42,7 +44,7 @@ public class Login {
                 JSONResponse.put("response", false);
             }
         } catch (JSONException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseAuthenticateUserLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("JSONResponseAuthenticateUserLogMessage"), ex.getMessage());
         }
         return JSONResponse.toString();
     }

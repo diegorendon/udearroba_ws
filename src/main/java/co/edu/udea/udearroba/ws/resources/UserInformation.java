@@ -5,14 +5,13 @@ import co.edu.udea.udearroba.dto.User;
 import co.edu.udea.udearroba.i18n.Texts;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST Web Service for retrieving users information.
@@ -21,6 +20,8 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("/userinformation")
 public class UserInformation {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UserInformation.class);
 
     /**
      * Web service for retrieving user information from UdeA Portal's databases
@@ -57,7 +58,7 @@ public class UserInformation {
                 JSONResponse.put("response", userInfoMap);
             }
         } catch (JSONException ex) {
-            Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserInfoLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("JSONResponseUserInfoLogMessage"), ex.getMessage());
         }
         return JSONResponse.toString();
     }
@@ -80,7 +81,7 @@ public class UserInformation {
         try {
             JSONResponse.put("response", username);
         } catch (JSONException ex) {
-            Logger.getLogger(UserInformation.class.getName()).log(Level.SEVERE, Texts.getText("JSONResponseUserNameLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("JSONResponseUserNameLogMessage"), ex.getMessage());
         }
         return JSONResponse.toString();
     }

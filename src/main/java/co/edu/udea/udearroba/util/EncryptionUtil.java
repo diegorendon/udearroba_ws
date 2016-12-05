@@ -1,21 +1,21 @@
 package co.edu.udea.udearroba.util;
 
-import co.edu.udea.udearroba.bl.services.AuthenticationManager;
 import co.edu.udea.udearroba.i18n.Texts;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encrypt or Decrypt the passwords.
- * 
+ *
  * @author Diego Rendón
  */
 public class EncryptionUtil {
-    
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EncryptionUtil.class);
+
     /**
      * Decrypts a user password.
      *
@@ -36,7 +36,7 @@ public class EncryptionUtil {
             byte[] decryptedByteArray = cipher.doFinal(encryptedByteArray);
             decryptedPassword = new String(decryptedByteArray, "UTF8");
         } catch (Exception ex) {
-            Logger.getLogger(AuthenticationManager.class.getName()).log(Level.SEVERE, Texts.getText("decryptionLogMessage"), ex);
+            logger.error("{} - {}", Texts.getText("decryptionLogMessage"), ex.getMessage());
         }
         return decryptedPassword;
     }
