@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Appenders>
+        <File name="FILE" fileName="${sys:catalina.home}/logs/udearroba_ws.log" append="true">
+            <PatternLayout pattern="[udearroba_ws] | %-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] (%F:%L) %C - %m%n"/>
+        </File>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="[udearroba_ws] | %-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] (%F:%L) %C - %m%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="FILE"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
